@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"goterp/parser"
@@ -9,5 +10,11 @@ import (
 func main() {
 	// TODO(art): handle error
 	b, _ := os.ReadFile(os.Args[1])
-	parser.Parse(b)
+	p := parser.New(b)
+
+	stmt := p.Parse()
+
+	for _, s := range stmt {
+		fmt.Printf("%+v\n", s)
+	}
 }
