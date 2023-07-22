@@ -1,172 +1,87 @@
 package parser
 
-type expr interface{}
+import "goterp/scanner"
 
-type exprLit struct {
-	val tokenValue
+type Expr interface{}
+
+type ExprLit struct {
+	Kind  scanner.Token
+	Value string
 }
 
-type exprVar struct {
-	name string
+type Stmt interface{}
+
+type StmtPrint struct {
+	Value Expr
 }
 
-type exprBinary struct {
-	x  expr
-	op token
-	y  expr
+type Parser struct {
+	cur int
+
+	s *scanner.Scanner
+
+	tok scanner.Token
+	lit string
 }
 
-type exprCall struct {
-	callee expr
-	args   []expr
+func (p *Parser) advance() {
+	p.tok, p.lit = p.s.Scan()
 }
 
-type stmt interface{}
-
-type stmtVar struct {
-	name token
-	init expr
+func (p *Parser) match(kind scanner.Token) bool {
+	return p.tok == kind
 }
 
-type parser struct {
-	toks []token
-	cur  int
+func (p *Parser) statement() Stmt {
+	return p.printStmt()
 }
 
-func New(src []byte) *parser {
-	s := scanner{src: src}
-	p := &parser{}
-	p.toks = make([]token, 0, 30)
-
-	for {
-		tok := token{}
-		s.scan(&tok)
-
-		p.toks = append(p.toks, tok)
-
-		if tok.kind == tokEof {
-			break
-		}
+func (p *Parser) printStmt() StmtPrint {
+	if !p.match(scanner.TokenPrint) {
+		// TODO(art): handle error
+		panic("printStmt: expect print keyword")
 	}
 
-	return p
-}
-
-func (p *parser) hasTokens() bool {
-	return p.peek().kind != tokEof
-}
-
-func (p *parser) advance() token {
-	t := p.toks[p.cur]
-	p.cur++
-	return t
-}
-
-func (p *parser) peek() token {
-	return p.toks[p.cur]
-}
-
-func (p *parser) peek2() token {
-	next := p.cur + 1
-	if next < len(p.toks) {
-		return p.toks[next]
-	}
-	return token{kind: tokEof}
-}
-
-func (p *parser) next(kind tokenKind) bool {
-	return p.peek().kind == kind
-}
-
-func (p *parser) next2(kind tokenKind) bool {
-	return p.peek2().kind == kind
-}
-
-func (p *parser) declaration() stmt {
-	if p.next(tokIdent) && p.next2(tokEq) {
-		var_ := stmtVar{}
-
-		var_.name = p.advance()
-		p.advance()
-		var_.init = p.expression()
-
-		if p.advance().kind != tokSemiColon {
-			// TODO(art): handle errors
-			panic("expected ;")
-		}
-
-		return var_
-	}
-
+	p.advance()
 	e := p.expression()
-	if p.advance().kind != tokSemiColon {
-		// TODO(art): handle errors
-		panic("expected ;")
+
+	if !p.match(scanner.TokenSemicolon) {
+		// TODO(art): handle error
+		panic("printStmt: expect semicolon")
 	}
+	p.advance()
 
-	return e
+	return StmtPrint{e}
 }
 
-func (p *parser) expression() expr {
-	return p.term()
+func (p *Parser) expression() Expr {
+	return p.primary()
 }
 
-func (p *parser) term() expr {
-	e := p.call()
-
-	for p.next(tokPlus) {
-		op := p.advance()
-		y := p.call()
-		e = exprBinary{e, op, y}
-	}
-
-	return e
-}
-
-func (p *parser) call() expr {
-	e := p.primary()
-
-	if p.next(tokLParen) {
+func (p *Parser) primary() Expr {
+	if p.match(scanner.TokenNum) {
+		e := ExprLit{p.tok, p.lit}
 		p.advance()
-		args := []expr{p.expression()}
-		p.advance()
-		e = exprCall{e, args}
-	}
-
-	return e
-}
-
-func (p *parser) primary() expr {
-	if p.next(tokLParen) {
-		p.advance()
-		e := p.expression()
-		if p.advance().kind != tokRParen {
-			// TODO(art): error handling
-			panic("expected right parentheses")
-		}
-
 		return e
-	}
-
-	if p.next(tokNum) {
-		return exprLit{p.advance().val}
-	}
-
-	if p.next(tokIdent) {
-		return exprVar{p.advance().val.asStr}
 	}
 
 	// TODO(art): handle error
 	panic("primary")
 }
 
-func (p *parser) Parse() []stmt {
-	ss := []stmt{}
+func (p *Parser) Parse() []Stmt {
+	ss := []Stmt{}
 
-	for p.hasTokens() {
-		s := p.declaration()
+	for !p.match(scanner.TokenEof) {
+		s := p.statement()
 		ss = append(ss, s)
 	}
 
 	return ss
+}
+
+func New(src []byte) *Parser {
+	p := &Parser{s: scanner.New(src)}
+	p.advance()
+	return p
 }

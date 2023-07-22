@@ -1,3 +1,4 @@
 // adds two numbers
 
 print 69; // builtin function
+print 420.3;
