@@ -72,6 +72,12 @@ scanAgain:
 		return TokenSemicolon, ""
 	case '+':
 		return TokenPlus, ""
+	case '-':
+		return TokenMinus, ""
+	case '(':
+		return TokenLParen, ""
+	case ')':
+		return TokenRParen, ""
 
 	default:
 		switch {

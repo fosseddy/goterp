@@ -1,8 +1,18 @@
-// adds two numbers
+// comment
 
-print 69; // builtin function
-print 420.3;
+print 69.0; // 69
+print 420.3; // 420.3
 
-print 5 + 3;
+print 5 + 3; // 8
 
-print 1 + 1 + 1 + 1 + 1;
+print 1 + 1 + 1 + 1 + 1; // 5
+
+print 69 - 9; // 69
+
+print 69 - (9 + 9); // 51
+
+print -5; // -5
+
+print -((-5 + 1) + 24 - 9); // -11
+
+// comment

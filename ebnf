@@ -4,12 +4,13 @@ statement = print_stmt
 print_stmt = "print" expression ";"
 
 expression = term
-term = primary ( "+" primary )*
-primary = number
+term = unary (("+"|"-") unary)*
+unary = "-" unary | primary
+primary = number | "(" expression ")"
 
-number = digit+ ( "." digit+ )?
+number = digit+ ("." digit+)?
 
-alpha = "_" | upper | lower
+alpha = "_"|upper|lower
 upper = "A..Z"
 lower = "a..z"
 digit = "0..9"

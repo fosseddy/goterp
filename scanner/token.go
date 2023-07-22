@@ -8,6 +8,9 @@ const (
 	TokenNum
 
 	TokenPlus
+	TokenMinus
+	TokenLParen
+	TokenRParen
 	TokenSemicolon
 
 	TokenPrint
@@ -21,6 +24,12 @@ func (t Token) String() string {
 		return "Number"
 	case TokenPlus:
 		return "+"
+	case TokenMinus:
+		return "+"
+	case TokenLParen:
+		return "("
+	case TokenRParen:
+		return ")"
 	case TokenSemicolon:
 		return ";"
 	case TokenPrint:
