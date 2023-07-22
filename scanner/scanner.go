@@ -68,12 +68,15 @@ scanAgain:
 				}
 			}
 		}
+		return TokenSlash, ""
 	case ';':
 		return TokenSemicolon, ""
 	case '+':
 		return TokenPlus, ""
 	case '-':
 		return TokenMinus, ""
+	case '*':
+		return TokenStar, ""
 	case '(':
 		return TokenLParen, ""
 	case ')':
@@ -99,9 +102,9 @@ scanAgain:
 				s.advance()
 			}
 
-			return lookupKeyword(s.lexeme()), ""
+			return lookupKeyword(s.lexeme()), s.lexeme()
 		}
 	}
 
-	return TokenInvalid, ""
+	return TokenInvalid, s.lexeme()
 }

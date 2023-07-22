@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"goterp/scanner"
 )
 
@@ -15,10 +16,22 @@ type Parser struct {
 
 func (p *Parser) advance() {
 	p.tok, p.lit = p.s.Scan()
+	if p.tok == scanner.TokenInvalid {
+		// TODO(art): no panic
+		panic(fmt.Sprintln("Token", p.tok, p.lit))
+	}
 }
 
 func (p *Parser) match(kind scanner.Token) bool {
 	return p.tok == kind
+}
+
+func (p *Parser) consume(kind scanner.Token) {
+	if p.tok != kind {
+		// TODO(art): no panic
+		panic(fmt.Sprintln("expected", kind, "but got", p.tok))
+	}
+	p.advance()
 }
 
 func (p *Parser) statement() Stmt {
@@ -26,20 +39,9 @@ func (p *Parser) statement() Stmt {
 }
 
 func (p *Parser) printStmt() StmtPrint {
-	if !p.match(scanner.TokenPrint) {
-		// TODO(art): handle error
-		panic("printStmt: expect print keyword")
-	}
-
-	p.advance()
+	p.consume(scanner.TokenPrint)
 	e := p.expression()
-
-	if !p.match(scanner.TokenSemicolon) {
-		// TODO(art): handle error
-		panic("printStmt: expect semicolon")
-	}
-	p.advance()
-
+	p.consume(scanner.TokenSemicolon)
 	return StmtPrint{e}
 }
 
@@ -48,9 +50,21 @@ func (p *Parser) expression() Expr {
 }
 
 func (p *Parser) term() Expr {
-	e := p.unary()
+	e := p.factor()
 
 	for p.match(scanner.TokenPlus) || p.match(scanner.TokenMinus) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.factor()}
+	}
+
+	return e
+}
+
+func (p *Parser) factor() Expr {
+	e := p.unary()
+
+	for p.match(scanner.TokenStar) || p.match(scanner.TokenSlash) {
 		op := p.tok
 		p.advance()
 		e = ExprBinary{e, op, p.unary()}
@@ -70,7 +84,7 @@ func (p *Parser) unary() Expr {
 }
 
 func (p *Parser) primary() Expr {
-	if p.match(scanner.TokenNum) {
+	if p.match(scanner.TokenNum) || p.match(scanner.TokenTrue) || p.match(scanner.TokenFalse) {
 		e := ExprLit{p.tok, p.lit}
 		p.advance()
 		return e
@@ -79,24 +93,18 @@ func (p *Parser) primary() Expr {
 	if p.match(scanner.TokenLParen) {
 		p.advance()
 		e := p.expression()
-		if !p.match(scanner.TokenRParen) {
-			// TODO(art): handle error
-			panic("primary: expect )")
-		}
-		p.advance()
+		p.consume(scanner.TokenRParen)
 		return e
 	}
 
-	// TODO(art): handle error
-	panic("primary")
+	panic(fmt.Sprintln("Unexpected token", p.tok))
 }
 
 func (p *Parser) Parse() []Stmt {
-	ss := []Stmt{}
+	var ss []Stmt
 
 	for !p.match(scanner.TokenEof) {
-		s := p.statement()
-		ss = append(ss, s)
+		ss = append(ss, p.statement())
 	}
 
 	return ss

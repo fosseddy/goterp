@@ -15,4 +15,13 @@ print -5; // -5
 
 print -((-5 + 1) + 24 - 9); // -11
 
+print -1 + 1 + 1 - 1 - 1 + 1; // 0
+
+print 2 * 9; // 18
+
+print 18 / 2; // 9
+
+print true; // true
+print false; // false
+
 // comment
