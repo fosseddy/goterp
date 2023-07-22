@@ -22,8 +22,14 @@ func (p *Parser) advance() {
 	}
 }
 
-func (p *Parser) match(kind scanner.Token) bool {
-	return p.tok == kind
+func (p *Parser) match(kinds ...scanner.Token) bool {
+	for _, k := range kinds {
+		if p.tok == k {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (p *Parser) consume(kind scanner.Token) {
@@ -46,13 +52,25 @@ func (p *Parser) printStmt() StmtPrint {
 }
 
 func (p *Parser) expression() Expr {
-	return p.term()
+	return p.equality()
+}
+
+func (p *Parser) equality() Expr {
+	e := p.term()
+
+	for p.match(scanner.TokenEqEq) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.term()}
+	}
+
+	return e
 }
 
 func (p *Parser) term() Expr {
 	e := p.factor()
 
-	for p.match(scanner.TokenPlus) || p.match(scanner.TokenMinus) {
+	for p.match(scanner.TokenPlus, scanner.TokenMinus) {
 		op := p.tok
 		p.advance()
 		e = ExprBinary{e, op, p.factor()}
@@ -64,7 +82,7 @@ func (p *Parser) term() Expr {
 func (p *Parser) factor() Expr {
 	e := p.unary()
 
-	for p.match(scanner.TokenStar) || p.match(scanner.TokenSlash) {
+	for p.match(scanner.TokenStar, scanner.TokenSlash) {
 		op := p.tok
 		p.advance()
 		e = ExprBinary{e, op, p.unary()}
@@ -74,7 +92,7 @@ func (p *Parser) factor() Expr {
 }
 
 func (p *Parser) unary() Expr {
-	if p.match(scanner.TokenMinus) {
+	if p.match(scanner.TokenMinus, scanner.TokenBang) {
 		op := p.tok
 		p.advance()
 		return ExprUnary{op, p.unary()}
@@ -84,7 +102,7 @@ func (p *Parser) unary() Expr {
 }
 
 func (p *Parser) primary() Expr {
-	if p.match(scanner.TokenNum) || p.match(scanner.TokenTrue) || p.match(scanner.TokenFalse) {
+	if p.match(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
 		e := ExprLit{p.tok, p.lit}
 		p.advance()
 		return e

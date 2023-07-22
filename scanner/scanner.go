@@ -77,6 +77,14 @@ scanAgain:
 		return TokenMinus, ""
 	case '*':
 		return TokenStar, ""
+	case '!':
+		return TokenBang, ""
+	case '=':
+		if s.next('=') {
+			s.advance()
+			return TokenEqEq, ""
+		}
+		return TokenInvalid, s.lexeme()
 	case '(':
 		return TokenLParen, ""
 	case ')':

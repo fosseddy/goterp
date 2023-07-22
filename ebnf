@@ -3,11 +3,12 @@ program = statement* EOF
 statement = print_stmt
 print_stmt = "print" expression ";"
 
-expression = term
+expression = equality
+equality = term (("==") term)*
 term = factor (("+" | "-") factor)*
 factor = unary (("*" | "/") unary)*
-unary = "-" unary | primary
-primary = number | bool | "(" expression ")"
+unary = ("-" | "!") unary | primary
+primary = number | bool | "nil" | "(" expression ")"
 
 number = digit+ ("." digit+)?
 bool = "true" | "false"

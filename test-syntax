@@ -18,10 +18,22 @@ print -((-5 + 1) + 24 - 9); // -11
 print -1 + 1 + 1 - 1 - 1 + 1; // 0
 
 print 2 * 9; // 18
-
 print 18 / 2; // 9
+print 6 * (18 / (2 + 7)) - 2; // 10
 
 print true; // true
 print false; // false
+
+print !true; // false
+print !false; // true
+
+print nil; // nil
+
+print 5 == 5; // true
+print 5.3 == 5.3; // true
+print false == false; // true
+print true == true; // true
+print nil == nil; // true
+print 5 == nil; // false
 
 // comment

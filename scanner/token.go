@@ -11,6 +11,9 @@ const (
 	TokenMinus
 	TokenStar
 	TokenSlash
+	TokenBang
+	TokenEqEq
+
 	TokenLParen
 	TokenRParen
 	TokenSemicolon
@@ -18,6 +21,7 @@ const (
 	TokenPrint
 	TokenTrue
 	TokenFalse
+	TokenNil
 
 	TokenEof
 )
@@ -35,6 +39,11 @@ func (t Token) String() string {
 		return "*"
 	case TokenSlash:
 		return "/"
+	case TokenBang:
+		return "!"
+	case TokenEqEq:
+		return "=="
+
 	case TokenLParen:
 		return "("
 	case TokenRParen:
@@ -48,6 +57,8 @@ func (t Token) String() string {
 		return "true"
 	case TokenFalse:
 		return "false"
+	case TokenNil:
+		return "nil"
 
 	case TokenEof:
 		return "<End of File>"
@@ -60,6 +71,7 @@ var keywords = map[string]Token{
 	"print": TokenPrint,
 	"true": TokenTrue,
 	"false": TokenFalse,
+	"nil": TokenNil,
 }
 
 func lookupKeyword(s string) Token {
