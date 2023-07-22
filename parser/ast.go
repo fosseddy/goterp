@@ -23,5 +23,5 @@ type ExprBinary struct {
 type Stmt interface{}
 
 type StmtPrint struct {
-	Value Expr
+	Values []Expr
 }

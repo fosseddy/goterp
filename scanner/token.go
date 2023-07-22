@@ -6,13 +6,22 @@ const (
 	TokenInvalid Token = iota
 
 	TokenNum
+	TokenStr
 
 	TokenPlus
 	TokenMinus
 	TokenStar
 	TokenSlash
+	TokenComma
 	TokenBang
 	TokenEqEq
+	TokenBangEq
+	TokenLess
+	TokenLessEq
+	TokenGreater
+	TokenGreaterEq
+	TokenAnd
+	TokenOr
 
 	TokenLParen
 	TokenRParen
@@ -30,6 +39,8 @@ func (t Token) String() string {
 	switch t {
 	case TokenNum:
 		return "Number"
+	case TokenStr:
+		return "String"
 
 	case TokenPlus:
 		return "+"
@@ -39,10 +50,26 @@ func (t Token) String() string {
 		return "*"
 	case TokenSlash:
 		return "/"
+	case TokenComma:
+		return ","
 	case TokenBang:
 		return "!"
 	case TokenEqEq:
 		return "=="
+	case TokenBangEq:
+		return "!="
+	case TokenLess:
+		return "<"
+	case TokenLessEq:
+		return "<="
+	case TokenGreater:
+		return ">"
+	case TokenGreaterEq:
+		return ">="
+	case TokenAnd:
+		return "&&"
+	case TokenOr:
+		return "||"
 
 	case TokenLParen:
 		return "("

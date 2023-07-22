@@ -20,18 +20,32 @@ func main() {
 func execute(stmt parser.Stmt) {
 	switch s := stmt.(type) {
 	case parser.StmtPrint:
-		switch v := evaluate(s.Value).(type) {
-		case float64, bool:
-			fmt.Println(v)
-		case nil:
-			fmt.Println("nil")
-		default:
-			// TODO(art): this should not be exception, but normal flow of interpreter
-			panic(fmt.Sprintf("unknown expression evaluation type %T\n", v))
+		for _, value := range s.Values {
+			switch v := evaluate(value).(type) {
+			case float64, bool:
+				fmt.Print(v)
+			case nil:
+				fmt.Print("nil")
+			case string:
+				bs := make([]byte, 0, len(v))
+				for i := 0; i < len(v); i++ {
+					if v[i] == '\\' {
+						if i+1 < len(v) && v[i+1] == 'n' {
+							bs = append(bs, '\n')
+							i++
+							continue
+						}
+					}
+					bs = append(bs, v[i])
+				}
+				fmt.Print(string(bs))
+			default:
+				// TODO(art): panic, unhandled type
+				panic(fmt.Sprintf("unknown expression evaluation type %T\n", v))
+			}
 		}
-
 	default:
-		// TODO(art): no panic
+		// TODO(art): panic, unhandled statement
 		panic(fmt.Sprintf("unknown statement type %T\n", s))
 	}
 }
@@ -57,6 +71,8 @@ func evaluate(expr parser.Expr) interface{} {
 		case scanner.TokenNil:
 			var empty interface{}
 			return empty
+		case scanner.TokenStr:
+			return e.Value
 		default:
 			// TODO(art): panic, unhandled token
 			panic(fmt.Sprintf("unknown token literal kind %v\n", e.Kind))
@@ -69,19 +85,11 @@ func evaluate(expr parser.Expr) interface{} {
 			xf := checkNumber(x)
 			return -xf
 		case scanner.TokenBang:
-			switch x := x.(type) {
-			case nil:
-				return !false
-			case float64:
-				return !true
-			case bool:
-				return !x
-			default:
-				// TODO(art): panic, unhandled value type
-				panic(fmt.Sprintf("invalid value type %T for value %v", x, x))
-			}
+			xb := checkBool(x)
+			return !xb
 		default:
-			panic(fmt.Sprintf("unsupported unary operator %v\n", e.Op))
+			// TODO(art): panic, unhandled unary operator
+			panic(fmt.Sprintf("unhandled unary operator %v\n", e.Op))
 		}
 	case parser.ExprBinary:
 		x := evaluate(e.X)
@@ -89,6 +97,9 @@ func evaluate(expr parser.Expr) interface{} {
 
 		switch e.Op {
 		case scanner.TokenPlus:
+			if xs, ok := x.(string); ok {
+				return xs + checkString(y)
+			}
 			xf, yf := checkNumbers(x, y)
 			return xf + yf
 		case scanner.TokenMinus:
@@ -101,17 +112,27 @@ func evaluate(expr parser.Expr) interface{} {
 			xf, yf := checkNumbers(x, y)
 			return xf / yf
 		case scanner.TokenEqEq:
-			if x == nil && y == nil {
-				return true
-			}
-			if x == nil || y == nil {
-				return false
-			}
-			if xb, ok := x.(bool); ok {
-				return xb == checkBool(y)
-			}
+			return getEquality(x, y)
+		case scanner.TokenBangEq:
+			return !getEquality(x, y)
+		case scanner.TokenLess:
 			xf, yf := checkNumbers(x, y)
-			return xf == yf
+			return xf < yf
+		case scanner.TokenLessEq:
+			xf, yf := checkNumbers(x, y)
+			return xf <= yf
+		case scanner.TokenGreater:
+			xf, yf := checkNumbers(x, y)
+			return xf > yf
+		case scanner.TokenGreaterEq:
+			xf, yf := checkNumbers(x, y)
+			return xf >= yf
+		case scanner.TokenOr:
+			xb, yb := checkBools(x, y)
+			return xb || yb
+		case scanner.TokenAnd:
+			xb, yb := checkBools(x, y)
+			return xb && yb
 		default:
 			// TODO(art): panic, unhandled operator
 			panic(fmt.Sprintf("unsupported binary operator %v\n", e.Op))
@@ -122,13 +143,38 @@ func evaluate(expr parser.Expr) interface{} {
 	}
 }
 
+func getEquality(a, b interface{}) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	if ab, ok := a.(bool); ok {
+		return ab == checkBool(b)
+	}
+
+	if as, ok := a.(string); ok {
+		return as == checkString(b)
+	}
+
+	af, bf := checkNumbers(a, b)
+	return af == bf
+}
+
 func checkNumber(a interface{}) float64 {
 	if f, ok := a.(float64); ok {
 		return f
 	}
 
 	// TODO(art): something better than panic?
-	panic(fmt.Sprintf("value %v must be number\n", a))
+	panic(fmt.Sprintf("value %#v must be number\n", a))
+}
+
+func checkNumbers(a, b interface{}) (float64, float64) {
+	return checkNumber(a), checkNumber(b)
 }
 
 func checkBool(a interface{}) bool {
@@ -137,9 +183,18 @@ func checkBool(a interface{}) bool {
 	}
 
 	// TODO(art): something better than panic?
-	panic(fmt.Sprintf("value %v must be bool\n", a))
+	panic(fmt.Sprintf("value %#v must be bool\n", a))
 }
 
-func checkNumbers(a, b interface{}) (float64, float64) {
-	return checkNumber(a), checkNumber(b)
+func checkBools(a, b interface{}) (bool, bool) {
+	return checkBool(a), checkBool(b)
+}
+
+func checkString(a interface{}) string {
+	if s, ok := a.(string); ok {
+		return s
+	}
+
+	// TODO(art): something better than panic?
+	panic(fmt.Sprintf("value %#v must be string\n", a))
 }

@@ -77,19 +77,62 @@ scanAgain:
 		return TokenMinus, ""
 	case '*':
 		return TokenStar, ""
+	case ',':
+		return TokenComma, ""
 	case '!':
+		if s.next('=') {
+			s.advance()
+			return TokenBangEq, ""
+		}
 		return TokenBang, ""
 	case '=':
 		if s.next('=') {
 			s.advance()
 			return TokenEqEq, ""
 		}
-		return TokenInvalid, s.lexeme()
+	case '<':
+		if s.next('=') {
+			s.advance()
+			return TokenLessEq, ""
+		}
+		return TokenLess, ""
+	case '>':
+		if s.next('=') {
+			s.advance()
+			return TokenGreaterEq, ""
+		}
+		return TokenGreater, ""
+	case '&':
+		if s.next('&') {
+			s.advance()
+			return TokenAnd, ""
+		}
+	case '|':
+		if s.next('|') {
+			s.advance()
+			return TokenOr, ""
+		}
 	case '(':
 		return TokenLParen, ""
 	case ')':
 		return TokenRParen, ""
 
+	case '"':
+		s.pos++
+		s.advance()
+
+		for s.hasSrc() && !s.next('"') {
+			s.advance()
+		}
+
+		if !s.hasSrc() {
+			// TODO(art): report
+			panic("unterminated string literal")
+		}
+
+		lit := s.lexeme()
+		s.advance()
+		return TokenStr, lit
 	default:
 		switch {
 		case isDigit(ch):

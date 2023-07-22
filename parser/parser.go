@@ -46,19 +46,61 @@ func (p *Parser) statement() Stmt {
 
 func (p *Parser) printStmt() StmtPrint {
 	p.consume(scanner.TokenPrint)
-	e := p.expression()
+
+	es := []Expr{p.expression()}
+	for p.match(scanner.TokenComma) {
+		p.advance()
+		es = append(es, p.expression())
+	}
+
 	p.consume(scanner.TokenSemicolon)
-	return StmtPrint{e}
+	return StmtPrint{es}
 }
 
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.logicOr()
+}
+
+func (p *Parser) logicOr() Expr {
+	e := p.logicAnd()
+
+	for p.match(scanner.TokenOr) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.logicAnd()}
+	}
+
+	return e
+}
+
+func (p *Parser) logicAnd() Expr {
+	e := p.equality()
+
+	for p.match(scanner.TokenAnd) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.equality()}
+	}
+
+	return e
 }
 
 func (p *Parser) equality() Expr {
+	e := p.comparison()
+
+	for p.match(scanner.TokenEqEq, scanner.TokenBangEq) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.comparison()}
+	}
+
+	return e
+}
+
+func (p *Parser) comparison() Expr {
 	e := p.term()
 
-	for p.match(scanner.TokenEqEq) {
+	for p.match(scanner.TokenLess, scanner.TokenLessEq, scanner.TokenGreater, scanner.TokenGreaterEq) {
 		op := p.tok
 		p.advance()
 		e = ExprBinary{e, op, p.term()}
@@ -102,7 +144,7 @@ func (p *Parser) unary() Expr {
 }
 
 func (p *Parser) primary() Expr {
-	if p.match(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
+	if p.match(scanner.TokenNum, scanner.TokenStr, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
 		e := ExprLit{p.tok, p.lit}
 		p.advance()
 		return e
@@ -115,6 +157,7 @@ func (p *Parser) primary() Expr {
 		return e
 	}
 
+	// TODO(art): report, probably syntax error
 	panic(fmt.Sprintln("Unexpected token", p.tok))
 }
 

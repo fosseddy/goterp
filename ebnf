@@ -1,15 +1,19 @@
 program = statement* EOF
 
 statement = print_stmt
-print_stmt = "print" expression ";"
+print_stmt = "print" expression ("," expression)* ";"
 
-expression = equality
-equality = term (("==") term)*
+expression = logic_or
+logic_or = logic_and ("||" logic_and)*
+logic_and = equality ("&&" equality)*
+equality = comparison (("==" | "!=") comparison)*
+comparison = term (("<" | "<=" | ">" | ">=") term)*
 term = factor (("+" | "-") factor)*
 factor = unary (("*" | "/") unary)*
 unary = ("-" | "!") unary | primary
-primary = number | bool | "nil" | "(" expression ")"
+primary = number | string | bool | "nil" | "(" expression ")"
 
+string = "<anything except ">"
 number = digit+ ("." digit+)?
 bool = "true" | "false"
 
