@@ -3,7 +3,8 @@ program = statement* EOF
 statement = print_stmt
 print_stmt = "print" expression ";"
 
-expression = primary
+expression = term
+term = primary ( "+" primary )*
 primary = number
 
 number = digit+ ( "." digit+ )?

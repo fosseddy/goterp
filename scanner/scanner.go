@@ -1,27 +1,27 @@
 package scanner
 
 type Scanner struct {
-	src []byte
+	Src []byte
 	pos int
 	cur int
 }
 
 func (s *Scanner) lexeme() string {
-	return string(s.src[s.pos:s.cur])
+	return string(s.Src[s.pos:s.cur])
 }
 
 func (s *Scanner) hasSrc() bool {
-	return s.cur < len(s.src)
+	return s.cur < len(s.Src)
 }
 
 func (s *Scanner) peek() byte {
-	return s.src[s.cur]
+	return s.Src[s.cur]
 }
 
 func (s *Scanner) peek2() byte {
 	next := s.cur + 1
-	if next < len(s.src) {
-		return s.src[next]
+	if next < len(s.Src) {
+		return s.Src[next]
 	}
 	return 0
 }
@@ -34,6 +34,18 @@ func (s *Scanner) advance() byte {
 	ch := s.peek()
 	s.cur++
 	return ch
+}
+
+func isDigit(ch byte) bool {
+	return ch >= '0' && ch <= '9'
+}
+
+func isChar(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
+}
+
+func isAlphaNum(ch byte) bool {
+	return isChar(ch) || isDigit(ch)
 }
 
 func (s *Scanner) Scan() (Token, string) {
@@ -58,6 +70,8 @@ scanAgain:
 		}
 	case ';':
 		return TokenSemicolon, ""
+	case '+':
+		return TokenPlus, ""
 
 	default:
 		switch {
@@ -79,29 +93,9 @@ scanAgain:
 				s.advance()
 			}
 
-			if kwd, ok := keywordLookup(s.lexeme()); ok {
-				return kwd, ""
-			}
-
-			return TokenInvalid, ""
+			return lookupKeyword(s.lexeme()), ""
 		}
 	}
 
 	return TokenInvalid, ""
-}
-
-func New(src []byte) *Scanner {
-	return &Scanner{src: src}
-}
-
-func isDigit(ch byte) bool {
-	return ch >= '0' && ch <= '9'
-}
-
-func isChar(ch byte) bool {
-	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
-}
-
-func isAlphaNum(ch byte) bool {
-	return isChar(ch) || isDigit(ch)
 }

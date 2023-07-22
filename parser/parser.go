@@ -1,18 +1,74 @@
 package parser
 
-import "goterp/scanner"
+import (
+	"fmt"
+	"goterp/scanner"
+	"strconv"
+)
 
-type Expr interface{}
+type Expr interface {
+	Eval() interface{}
+}
 
 type ExprLit struct {
 	Kind  scanner.Token
 	Value string
 }
 
-type Stmt interface{}
+func (e ExprLit) Eval() interface{} {
+	switch e.Kind {
+	case scanner.TokenNum:
+		// TODO(art): handle error
+		f, _ := strconv.ParseFloat(e.Value, 64)
+		return f
+	default:
+		panic(fmt.Sprintf("unknown token literal kind %v\n", e.Kind))
+	}
+}
+
+type ExprBinary struct {
+	X  Expr
+	Op scanner.Token
+	Y  Expr
+}
+
+func (e ExprBinary) Eval() interface{} {
+	x := e.X.Eval()
+	y := e.Y.Eval()
+
+	switch e.Op {
+	case scanner.TokenPlus:
+		xf, ok := x.(float64)
+		if !ok {
+			panic(fmt.Sprintf("invalid value type %T for value %v", x, x))
+		}
+		yf, ok := y.(float64)
+		if !ok {
+			panic(fmt.Sprintf("invalid value type %T for value %v", x, x))
+		}
+		return xf + yf
+	default:
+		panic(fmt.Sprintf("unsuppported operation %v\n", e.Op))
+	}
+}
+
+type Stmt interface {
+	Execute()
+}
 
 type StmtPrint struct {
 	Value Expr
+}
+
+func (s StmtPrint) Execute() {
+	v := s.Value.Eval()
+	switch v := v.(type) {
+	case float64:
+		fmt.Println(v)
+	default:
+		// TODO(art): this should not be exception, but normal flow of interpreter
+		panic(fmt.Sprintf("unknown expression evaluation type %T\n", v))
+	}
 }
 
 type Parser struct {
@@ -55,7 +111,19 @@ func (p *Parser) printStmt() StmtPrint {
 }
 
 func (p *Parser) expression() Expr {
-	return p.primary()
+	return p.term()
+}
+
+func (p *Parser) term() Expr {
+	e := p.primary()
+
+	for p.match(scanner.TokenPlus) {
+		op := p.tok
+		p.advance()
+		e = ExprBinary{e, op, p.primary()}
+	}
+
+	return e
 }
 
 func (p *Parser) primary() Expr {
@@ -81,7 +149,7 @@ func (p *Parser) Parse() []Stmt {
 }
 
 func New(src []byte) *Parser {
-	p := &Parser{s: scanner.New(src)}
+	p := &Parser{s: &scanner.Scanner{Src: src}}
 	p.advance()
 	return p
 }

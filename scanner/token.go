@@ -7,6 +7,7 @@ const (
 
 	TokenNum
 
+	TokenPlus
 	TokenSemicolon
 
 	TokenPrint
@@ -18,10 +19,12 @@ func (t Token) String() string {
 	switch t {
 	case TokenNum:
 		return "Number"
+	case TokenPlus:
+		return "+"
 	case TokenSemicolon:
 		return ";"
 	case TokenPrint:
-		return "Print"
+		return "print"
 	case TokenEof:
 		return "<End of File>"
 	}
@@ -33,7 +36,9 @@ var keywords = map[string]Token{
 	"print": TokenPrint,
 }
 
-func keywordLookup(s string) (Token, bool) {
-	k, ok := keywords[s]
-	return k, ok
+func lookupKeyword(s string) Token {
+	if k, ok := keywords[s]; ok {
+		return k
+	}
+	return TokenInvalid
 }
