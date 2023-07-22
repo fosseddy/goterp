@@ -1,7 +1,3 @@
 // adds two numbers
 
-a = 3;
-b = 5.1;
-c = a + b;
-
-println(c); // builtin function
+print 69; // builtin function
