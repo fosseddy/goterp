@@ -111,10 +111,10 @@ func (t Token) String() string {
 
 var keywords = map[string]Token{
 	"print": TokenPrint,
-	"let": TokenLet,
-	"true": TokenTrue,
+	"let":   TokenLet,
+	"true":  TokenTrue,
 	"false": TokenFalse,
-	"nil": TokenNil,
+	"nil":   TokenNil,
 }
 
 func lookupKeyword(s string) Token {

@@ -32,7 +32,7 @@ type StmtVar struct {
 }
 
 type StmtAssign struct {
-	Name string
+	Name  string
 	Value Expr
 }
 
