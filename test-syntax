@@ -1,12 +1,8 @@
 // comment
 
-print "hello, world\n";
+let a = 5;
+let b = 6;
 
-print "a" == "b", "\n";
-print "a" == "a", "\n";
-
-print 3 + 8, " ", 1 + 16, "\n";
-
-print "hello " + "world\n";
+print ((a + b) * 2 + 3) / 5 + 3, "\n"; // 8
 
 // comment

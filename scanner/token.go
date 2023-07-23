@@ -5,6 +5,7 @@ type Token int
 const (
 	TokenInvalid Token = iota
 
+	TokenIdent
 	TokenNum
 	TokenStr
 
@@ -14,6 +15,7 @@ const (
 	TokenSlash
 	TokenComma
 	TokenBang
+	TokenEq
 	TokenEqEq
 	TokenBangEq
 	TokenLess
@@ -28,6 +30,7 @@ const (
 	TokenSemicolon
 
 	TokenPrint
+	TokenLet
 	TokenTrue
 	TokenFalse
 	TokenNil
@@ -37,6 +40,8 @@ const (
 
 func (t Token) String() string {
 	switch t {
+	case TokenIdent:
+		return "Identifier"
 	case TokenNum:
 		return "Number"
 	case TokenStr:
@@ -54,6 +59,8 @@ func (t Token) String() string {
 		return ","
 	case TokenBang:
 		return "!"
+	case TokenEq:
+		return "="
 	case TokenEqEq:
 		return "=="
 	case TokenBangEq:
@@ -80,6 +87,8 @@ func (t Token) String() string {
 
 	case TokenPrint:
 		return "print"
+	case TokenLet:
+		return "let"
 	case TokenTrue:
 		return "true"
 	case TokenFalse:
@@ -96,6 +105,7 @@ func (t Token) String() string {
 
 var keywords = map[string]Token{
 	"print": TokenPrint,
+	"let": TokenLet,
 	"true": TokenTrue,
 	"false": TokenFalse,
 	"nil": TokenNil,
@@ -105,5 +115,5 @@ func lookupKeyword(s string) Token {
 	if k, ok := keywords[s]; ok {
 		return k
 	}
-	return TokenInvalid
+	return TokenIdent
 }

@@ -1,4 +1,7 @@
-program = statement* EOF
+program = declaration* EOF
+
+declaration = var_decl | statement
+var_decl = "let" identifier "=" expression ";"
 
 statement = print_stmt
 print_stmt = "print" expression ("," expression)* ";"
@@ -11,10 +14,11 @@ comparison = term (("<" | "<=" | ">" | ">=") term)*
 term = factor (("+" | "-") factor)*
 factor = unary (("*" | "/") unary)*
 unary = ("-" | "!") unary | primary
-primary = number | string | bool | "nil" | "(" expression ")"
+primary = identifier | number | string | bool | "nil" | "(" expression ")"
 
-string = "<anything except ">"
+identifier = alpha (alpha | digit)*
 number = digit+ ("." digit+)?
+string = "<anything except ">"
 bool = "true" | "false"
 
 alpha = "_" | upper | lower

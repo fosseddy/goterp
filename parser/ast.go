@@ -25,3 +25,8 @@ type Stmt interface{}
 type StmtPrint struct {
 	Values []Expr
 }
+
+type StmtVar struct {
+	Name string
+	Init Expr
+}

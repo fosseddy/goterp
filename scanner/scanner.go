@@ -90,6 +90,7 @@ scanAgain:
 			s.advance()
 			return TokenEqEq, ""
 		}
+		return TokenEq, ""
 	case '<':
 		if s.next('=') {
 			s.advance()
@@ -153,7 +154,12 @@ scanAgain:
 				s.advance()
 			}
 
-			return lookupKeyword(s.lexeme()), s.lexeme()
+			lit := s.lexeme()
+			tok := lookupKeyword(lit)
+			if tok == TokenIdent {
+				return tok, lit
+			}
+			return tok, ""
 		}
 	}
 

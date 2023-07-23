@@ -17,33 +17,25 @@ func main() {
 	}
 }
 
+var env = make(map[string]interface{})
+
 func execute(stmt parser.Stmt) {
 	switch s := stmt.(type) {
 	case parser.StmtPrint:
 		for _, value := range s.Values {
 			switch v := evaluate(value).(type) {
-			case float64, bool:
+			case float64, bool, string:
 				fmt.Print(v)
 			case nil:
 				fmt.Print("nil")
-			case string:
-				bs := make([]byte, 0, len(v))
-				for i := 0; i < len(v); i++ {
-					if v[i] == '\\' {
-						if i+1 < len(v) && v[i+1] == 'n' {
-							bs = append(bs, '\n')
-							i++
-							continue
-						}
-					}
-					bs = append(bs, v[i])
-				}
-				fmt.Print(string(bs))
 			default:
 				// TODO(art): panic, unhandled type
 				panic(fmt.Sprintf("unknown expression evaluation type %T\n", v))
 			}
 		}
+	case parser.StmtVar:
+		// TODO(art): check if exist
+		env[s.Name] = evaluate(s.Init)
 	default:
 		// TODO(art): panic, unhandled statement
 		panic(fmt.Sprintf("unknown statement type %T\n", s))
@@ -72,7 +64,22 @@ func evaluate(expr parser.Expr) interface{} {
 			var empty interface{}
 			return empty
 		case scanner.TokenStr:
-			return e.Value
+			v := e.Value
+			bs := make([]byte, 0, len(v))
+			for i := 0; i < len(v); i++ {
+				if v[i] == '\\' {
+					if i+1 < len(v) && v[i+1] == 'n' {
+						bs = append(bs, '\n')
+						i++
+						continue
+					}
+				}
+				bs = append(bs, v[i])
+			}
+			return string(bs)
+		case scanner.TokenIdent:
+			// TODO(art): check if exist
+			return env[e.Value]
 		default:
 			// TODO(art): panic, unhandled token
 			panic(fmt.Sprintf("unknown token literal kind %v\n", e.Kind))

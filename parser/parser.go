@@ -40,6 +40,25 @@ func (p *Parser) consume(kind scanner.Token) {
 	p.advance()
 }
 
+func (p *Parser) declaration() Stmt {
+	if p.tok == scanner.TokenLet {
+		p.advance()
+		return p.varDecl()
+	}
+
+	return p.statement()
+}
+
+func (p *Parser) varDecl() Stmt {
+	ident := p.lit
+	p.consume(scanner.TokenIdent)
+	p.consume(scanner.TokenEq)
+	init := p.expression()
+	p.consume(scanner.TokenSemicolon)
+
+	return StmtVar{ident, init}
+}
+
 func (p *Parser) statement() Stmt {
 	return p.printStmt()
 }
@@ -144,7 +163,7 @@ func (p *Parser) unary() Expr {
 }
 
 func (p *Parser) primary() Expr {
-	if p.match(scanner.TokenNum, scanner.TokenStr, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
+	if p.match(scanner.TokenIdent, scanner.TokenNum, scanner.TokenStr, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
 		e := ExprLit{p.tok, p.lit}
 		p.advance()
 		return e
@@ -165,7 +184,7 @@ func (p *Parser) Parse() []Stmt {
 	var ss []Stmt
 
 	for !p.match(scanner.TokenEof) {
-		ss = append(ss, p.statement())
+		ss = append(ss, p.declaration())
 	}
 
 	return ss
