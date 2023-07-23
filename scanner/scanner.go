@@ -159,11 +159,7 @@ scanAgain:
 			}
 
 			lit := s.lexeme()
-			tok := lookupKeyword(lit)
-			if tok == TokenIdent {
-				return tok, lit
-			}
-			return tok, ""
+			return lookupKeyword(lit), lit
 		}
 	}
 

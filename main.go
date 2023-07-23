@@ -70,6 +70,15 @@ func execute(stmt parser.Stmt) {
 			execute(it)
 		}
 		env = top
+	case parser.StmtIf:
+		cond := checkBool(evaluate(s.Cond))
+		if cond {
+			execute(s.IfBlock)
+		} else {
+			if s.ElseBlock != nil {
+				execute(s.ElseBlock)
+			}
+		}
 	default:
 		// TODO(art): panic, unhandled statement
 		panic(fmt.Sprintf("unknown statement type %T\n", s))
@@ -95,8 +104,7 @@ func evaluate(expr parser.Expr) interface{} {
 			}
 			return b
 		case scanner.TokenNil:
-			var empty interface{}
-			return empty
+			return nil
 		case scanner.TokenStr:
 			v := e.Value
 			bs := make([]byte, 0, len(v))

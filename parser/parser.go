@@ -78,6 +78,10 @@ func (p *Parser) statement() Stmt {
 		return p.assignStmt()
 	}
 
+	if p.match(scanner.TokenIf) {
+		return p.ifStmt()
+	}
+
 	return p.printStmt()
 }
 
@@ -89,6 +93,25 @@ func (p *Parser) assignStmt() StmtAssign {
 	p.consume(scanner.TokenSemicolon)
 
 	return StmtAssign{ident, val}
+}
+
+func (p *Parser) ifStmt() StmtIf {
+	p.consume(scanner.TokenIf)
+
+	s := StmtIf{}
+	s.Cond = p.expression()
+	s.IfBlock = p.blockDecl()
+
+	if p.match(scanner.TokenElse) {
+		p.advance()
+		if p.match(scanner.TokenIf) {
+			s.ElseBlock = p.ifStmt()
+		} else {
+			s.ElseBlock = p.blockDecl()
+		}
+	}
+
+	return s
 }
 
 func (p *Parser) printStmt() StmtPrint {

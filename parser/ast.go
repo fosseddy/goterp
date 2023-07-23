@@ -39,3 +39,9 @@ type StmtAssign struct {
 type StmtBlock struct {
 	Body []Stmt
 }
+
+type StmtIf struct {
+	Cond      Expr
+	IfBlock   StmtBlock
+	ElseBlock Stmt
+}

@@ -33,6 +33,8 @@ const (
 
 	TokenPrint
 	TokenLet
+	TokenIf
+	TokenElse
 	TokenTrue
 	TokenFalse
 	TokenNil
@@ -95,6 +97,10 @@ func (t Token) String() string {
 		return "print"
 	case TokenLet:
 		return "let"
+	case TokenIf:
+		return "if"
+	case TokenElse:
+		return "else"
 	case TokenTrue:
 		return "true"
 	case TokenFalse:
@@ -112,6 +118,8 @@ func (t Token) String() string {
 var keywords = map[string]Token{
 	"print": TokenPrint,
 	"let":   TokenLet,
+	"if":   TokenIf,
+	"else":   TokenElse,
 	"true":  TokenTrue,
 	"false": TokenFalse,
 	"nil":   TokenNil,

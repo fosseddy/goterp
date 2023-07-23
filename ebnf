@@ -4,9 +4,10 @@ declaration = var_decl | block_decl | statement
 var_decl = "let" identifier "=" expression ";"
 block_decl = "{" declaration* "}"
 
-statement = print_stmt | assign_stmt
+statement = print_stmt | assign_stmt | if_stmt
 print_stmt = "print" expression ("," expression)* ";"
 assign_stmt = identifier "=" expression ";"
+if_stmt = "if" expression block_decl ("else" block_decl | if_stmt))?
 
 expression = logic_or
 logic_or = logic_and ("||" logic_and)*
