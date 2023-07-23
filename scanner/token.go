@@ -27,6 +27,8 @@ const (
 
 	TokenLParen
 	TokenRParen
+	TokenLBrace
+	TokenRBrace
 	TokenSemicolon
 
 	TokenPrint
@@ -82,6 +84,10 @@ func (t Token) String() string {
 		return "("
 	case TokenRParen:
 		return ")"
+	case TokenLBrace:
+		return "{"
+	case TokenRBrace:
+		return "}"
 	case TokenSemicolon:
 		return ";"
 

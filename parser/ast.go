@@ -30,3 +30,12 @@ type StmtVar struct {
 	Name string
 	Init Expr
 }
+
+type StmtAssign struct {
+	Name string
+	Value Expr
+}
+
+type StmtBlock struct {
+	Body []Stmt
+}

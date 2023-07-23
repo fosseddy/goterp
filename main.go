@@ -17,7 +17,33 @@ func main() {
 	}
 }
 
-var env = make(map[string]interface{})
+type Block struct {
+	symbols map[string]interface{}
+	prev    *Block
+}
+
+func (b *Block) symbol(name string) interface{} {
+	for it := b; it != nil; it = it.prev {
+		if v, ok := it.symbols[name]; ok {
+			return v
+		}
+	}
+
+	// TODO(art): report, var not does not exist
+	panic("var does not exist")
+}
+
+func (b *Block) define(name string, value interface{}) {
+	// TODO(art): report, var already exist
+	b.symbols[name] = value
+}
+
+func (b *Block) assign(name string, value interface{}) {
+	// TODO(art): report, var does not exist
+	b.symbols[name] = value
+}
+
+var env = &Block{make(map[string]interface{}), nil}
 
 func execute(stmt parser.Stmt) {
 	switch s := stmt.(type) {
@@ -34,8 +60,16 @@ func execute(stmt parser.Stmt) {
 			}
 		}
 	case parser.StmtVar:
-		// TODO(art): check if exist
-		env[s.Name] = evaluate(s.Init)
+		env.define(s.Name, evaluate(s.Init))
+	case parser.StmtAssign:
+		env.assign(s.Name, evaluate(s.Value))
+	case parser.StmtBlock:
+		top := env
+		env = &Block{make(map[string]interface{}), env}
+		for _, it := range s.Body {
+			execute(it)
+		}
+		env = top
 	default:
 		// TODO(art): panic, unhandled statement
 		panic(fmt.Sprintf("unknown statement type %T\n", s))
@@ -79,7 +113,7 @@ func evaluate(expr parser.Expr) interface{} {
 			return string(bs)
 		case scanner.TokenIdent:
 			// TODO(art): check if exist
-			return env[e.Value]
+			return env.symbol(e.Value)
 		default:
 			// TODO(art): panic, unhandled token
 			panic(fmt.Sprintf("unknown token literal kind %v\n", e.Kind))

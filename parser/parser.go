@@ -41,15 +41,19 @@ func (p *Parser) consume(kind scanner.Token) {
 }
 
 func (p *Parser) declaration() Stmt {
-	if p.tok == scanner.TokenLet {
+	if p.match(scanner.TokenLet) {
 		p.advance()
 		return p.varDecl()
+	}
+
+	if p.match(scanner.TokenLBrace) {
+		return p.blockDecl()
 	}
 
 	return p.statement()
 }
 
-func (p *Parser) varDecl() Stmt {
+func (p *Parser) varDecl() StmtVar {
 	ident := p.lit
 	p.consume(scanner.TokenIdent)
 	p.consume(scanner.TokenEq)
@@ -59,8 +63,32 @@ func (p *Parser) varDecl() Stmt {
 	return StmtVar{ident, init}
 }
 
+func (p *Parser) blockDecl() StmtBlock {
+	p.consume(scanner.TokenLBrace)
+	ss := []Stmt{}
+	for !p.match(scanner.TokenRBrace) {
+		ss = append(ss, p.declaration())
+	}
+	p.consume(scanner.TokenRBrace)
+	return StmtBlock{ss}
+}
+
 func (p *Parser) statement() Stmt {
+	if p.match(scanner.TokenIdent) {
+		return p.assignStmt()
+	}
+
 	return p.printStmt()
+}
+
+func (p *Parser) assignStmt() StmtAssign {
+	ident := p.lit
+	p.consume(scanner.TokenIdent)
+	p.consume(scanner.TokenEq)
+	val := p.expression()
+	p.consume(scanner.TokenSemicolon)
+
+	return StmtAssign{ident, val}
 }
 
 func (p *Parser) printStmt() StmtPrint {

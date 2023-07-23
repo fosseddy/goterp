@@ -117,6 +117,10 @@ scanAgain:
 		return TokenLParen, ""
 	case ')':
 		return TokenRParen, ""
+	case '{':
+		return TokenLBrace, ""
+	case '}':
+		return TokenRBrace, ""
 
 	case '"':
 		s.pos++
