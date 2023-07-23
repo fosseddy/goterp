@@ -45,3 +45,8 @@ type StmtIf struct {
 	IfBlock   StmtBlock
 	ElseBlock Stmt
 }
+
+type StmtWhile struct {
+	Cond Expr
+	Body StmtBlock
+}

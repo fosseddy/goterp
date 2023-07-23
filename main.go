@@ -29,7 +29,7 @@ func (b *Block) symbol(name string) interface{} {
 		}
 	}
 
-	// TODO(art): report, var not does not exist
+	// TODO(art): report, var does not exist
 	panic("var does not exist")
 }
 
@@ -39,11 +39,18 @@ func (b *Block) define(name string, value interface{}) {
 }
 
 func (b *Block) assign(name string, value interface{}) {
+	for it := b; it != nil; it = it.prev {
+		if _, ok := it.symbols[name]; ok {
+			it.symbols[name] = value
+			return
+		}
+	}
+
 	// TODO(art): report, var does not exist
-	b.symbols[name] = value
+	panic("var does not exist")
 }
 
-var env = &Block{make(map[string]interface{}), nil}
+var env = &Block{symbols: make(map[string]interface{})}
 
 func execute(stmt parser.Stmt) {
 	switch s := stmt.(type) {
@@ -71,13 +78,19 @@ func execute(stmt parser.Stmt) {
 		}
 		env = top
 	case parser.StmtIf:
-		cond := checkBool(evaluate(s.Cond))
-		if cond {
+		if checkBool(evaluate(s.Cond)) {
 			execute(s.IfBlock)
 		} else {
 			if s.ElseBlock != nil {
 				execute(s.ElseBlock)
 			}
+		}
+	case parser.StmtWhile:
+		for {
+			if !checkBool(evaluate(s.Cond)) {
+				break
+			}
+			execute(s.Body)
 		}
 	default:
 		// TODO(art): panic, unhandled statement

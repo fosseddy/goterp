@@ -82,6 +82,10 @@ func (p *Parser) statement() Stmt {
 		return p.ifStmt()
 	}
 
+	if p.match(scanner.TokenWhile) {
+		return p.whileStmt()
+	}
+
 	return p.printStmt()
 }
 
@@ -110,6 +114,16 @@ func (p *Parser) ifStmt() StmtIf {
 			s.ElseBlock = p.blockDecl()
 		}
 	}
+
+	return s
+}
+
+func (p *Parser) whileStmt() StmtWhile {
+	p.consume(scanner.TokenWhile)
+
+	s := StmtWhile{}
+	s.Cond = p.expression()
+	s.Body = p.blockDecl()
 
 	return s
 }
