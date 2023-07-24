@@ -32,6 +32,24 @@ func (p *Parser) match(kinds ...scanner.Token) bool {
 	return false
 }
 
+func (p *Parser) next(kinds ...scanner.Token) bool {
+	prevtok, prevlit := p.tok, p.lit
+
+	p.advance()
+	tok := p.tok
+
+	p.s.Rollback()
+	p.tok, p.lit = prevtok, prevlit
+
+	for _, k := range kinds {
+		if tok == k {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (p *Parser) consume(kind scanner.Token) {
 	if p.tok != kind {
 		// TODO(art): no panic
@@ -42,7 +60,6 @@ func (p *Parser) consume(kind scanner.Token) {
 
 func (p *Parser) declaration() Stmt {
 	if p.match(scanner.TokenLet) {
-		p.advance()
 		return p.varDecl()
 	}
 
@@ -54,13 +71,38 @@ func (p *Parser) declaration() Stmt {
 }
 
 func (p *Parser) varDecl() StmtVar {
-	ident := p.lit
+	p.consume(scanner.TokenLet)
+
+	s := StmtVar{}
+	s.Name = p.lit
+
 	p.consume(scanner.TokenIdent)
 	p.consume(scanner.TokenEq)
-	init := p.expression()
-	p.consume(scanner.TokenSemicolon)
 
-	return StmtVar{ident, init}
+	if p.match(scanner.TokenFn) {
+		s.IsFn = true
+
+		p.consume(scanner.TokenFn)
+		p.consume(scanner.TokenLParen)
+		for !p.match(scanner.TokenRParen) {
+			// TODO(art): limit amount of arguments?
+			s.Params = append(s.Params, p.lit)
+			p.consume(scanner.TokenIdent)
+			if p.match(scanner.TokenComma) {
+				p.advance()
+			} else {
+				break
+			}
+		}
+		p.advance()
+
+		s.Body = p.blockDecl()
+	} else {
+		s.Init = p.expression()
+		p.consume(scanner.TokenSemicolon)
+	}
+
+	return s
 }
 
 func (p *Parser) blockDecl() StmtBlock {
@@ -74,8 +116,8 @@ func (p *Parser) blockDecl() StmtBlock {
 }
 
 func (p *Parser) statement() Stmt {
-	if p.match(scanner.TokenIdent) {
-		return p.assignStmt()
+	if p.match(scanner.TokenPrint) {
+		return p.printStmt()
 	}
 
 	if p.match(scanner.TokenIf) {
@@ -86,7 +128,15 @@ func (p *Parser) statement() Stmt {
 		return p.whileStmt()
 	}
 
-	return p.printStmt()
+	if p.match(scanner.TokenIdent) {
+		if p.next(scanner.TokenEq) {
+			return p.assignStmt()
+		}
+	}
+
+	s := StmtExpr{p.expression()}
+	p.consume(scanner.TokenSemicolon)
+	return s
 }
 
 func (p *Parser) assignStmt() StmtAssign {
@@ -222,6 +272,30 @@ func (p *Parser) unary() Expr {
 		op := p.tok
 		p.advance()
 		return ExprUnary{op, p.unary()}
+	}
+
+	return p.call()
+}
+
+func (p *Parser) call() Expr {
+	if p.match(scanner.TokenIdent) && p.next(scanner.TokenLParen) {
+		e := ExprCall{}
+		e.Callee = p.lit
+
+		p.advance()
+		p.consume(scanner.TokenLParen)
+
+		for !p.match(scanner.TokenRParen) {
+			e.Args = append(e.Args, p.expression())
+			if p.match(scanner.TokenComma) {
+				p.advance()
+			} else {
+				break
+			}
+		}
+		p.advance()
+
+		return e
 	}
 
 	return p.primary()

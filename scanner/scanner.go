@@ -48,6 +48,10 @@ func isAlphaNum(ch byte) bool {
 	return isChar(ch) || isDigit(ch)
 }
 
+func (s *Scanner) Rollback() {
+	s.cur = s.pos
+}
+
 func (s *Scanner) Scan() (Token, string) {
 scanAgain:
 	if !s.hasSrc() {

@@ -50,6 +50,12 @@ func (b *Block) assign(name string, value interface{}) {
 	panic("var does not exist")
 }
 
+type Callable struct {
+	Params []string
+	Arity int
+	Body parser.StmtBlock
+}
+
 var env = &Block{symbols: make(map[string]interface{})}
 
 func execute(stmt parser.Stmt) {
@@ -67,16 +73,19 @@ func execute(stmt parser.Stmt) {
 			}
 		}
 	case parser.StmtVar:
-		env.define(s.Name, evaluate(s.Init))
+		var val interface{}
+
+		if s.IsFn {
+			val = Callable{s.Params, len(s.Params), s.Body}
+		} else {
+			val = evaluate(s.Init)
+		}
+
+		env.define(s.Name, val)
 	case parser.StmtAssign:
 		env.assign(s.Name, evaluate(s.Value))
 	case parser.StmtBlock:
-		top := env
-		env = &Block{make(map[string]interface{}), env}
-		for _, it := range s.Body {
-			execute(it)
-		}
-		env = top
+		executeBlock(s.Body, &Block{make(map[string]interface{}), env})
 	case parser.StmtIf:
 		if checkBool(evaluate(s.Cond)) {
 			execute(s.IfBlock)
@@ -92,10 +101,21 @@ func execute(stmt parser.Stmt) {
 			}
 			execute(s.Body)
 		}
+	case parser.StmtExpr:
+		evaluate(s.Value)
 	default:
 		// TODO(art): panic, unhandled statement
 		panic(fmt.Sprintf("unknown statement type %T\n", s))
 	}
+}
+
+func executeBlock(ss []parser.Stmt, newEnv *Block) {
+	prev := env
+	env = newEnv
+	for _, s := range ss {
+		execute(s)
+	}
+	env = prev
 }
 
 func evaluate(expr parser.Expr) interface{} {
@@ -199,6 +219,33 @@ func evaluate(expr parser.Expr) interface{} {
 			// TODO(art): panic, unhandled operator
 			panic(fmt.Sprintf("unsupported binary operator %v\n", e.Op))
 		}
+	case parser.ExprCall:
+		sym := env.symbol(e.Callee)
+		fn, ok := sym.(Callable)
+		if !ok {
+			// TODO(art): report
+			panic("call only functions")
+		}
+
+		var args []interface{}
+		for _, it := range e.Args {
+			args = append(args, evaluate(it))
+		}
+
+		if fn.Arity != len(args) {
+			// TODO(art): report
+			panic("too many arguments")
+		}
+
+		fnEnv := &Block{make(map[string]interface{}), env}
+		for i, a := range args {
+			fnEnv.define(fn.Params[i], a)
+		}
+
+		// TODO(art): clean up Callable struct
+		executeBlock(fn.Body.Body, fnEnv)
+		return nil
+		
 	default:
 		// TODO(art): panic, unhandled expression
 		panic(fmt.Sprintf("unknown expression type %T\n", e))

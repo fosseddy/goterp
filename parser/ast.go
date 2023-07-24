@@ -20,6 +20,11 @@ type ExprBinary struct {
 	Y  Expr
 }
 
+type ExprCall struct {
+	Callee string
+	Args []Expr
+}
+
 type Stmt interface{}
 
 type StmtPrint struct {
@@ -29,6 +34,10 @@ type StmtPrint struct {
 type StmtVar struct {
 	Name string
 	Init Expr
+
+	IsFn bool
+	Params []string
+	Body StmtBlock
 }
 
 type StmtAssign struct {
@@ -49,4 +58,8 @@ type StmtIf struct {
 type StmtWhile struct {
 	Cond Expr
 	Body StmtBlock
+}
+
+type StmtExpr struct {
+	Value Expr
 }

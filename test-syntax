@@ -1,7 +1,14 @@
-
-let i = 0;
-
-while i < 3 {
-    print i, "\n";
-    i = i + 1;
+let hello = fn() {
+    print "hello, world\n";
 }
+
+hello();
+
+let sum = fn(a, b) {
+    print a, " + ", b, " = ", a + b, "\n";
+}
+
+let a = 5;
+let b = 3;
+
+sum(a, b);
