@@ -22,7 +22,7 @@ type ExprBinary struct {
 
 type ExprCall struct {
 	Callee string
-	Args []Expr
+	Args   []Expr
 }
 
 type Stmt interface{}
@@ -35,9 +35,9 @@ type StmtVar struct {
 	Name string
 	Init Expr
 
-	IsFn bool
+	IsFn   bool
 	Params []string
-	Body StmtBlock
+	Body   StmtBlock
 }
 
 type StmtAssign struct {

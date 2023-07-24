@@ -129,7 +129,7 @@ var keywords = map[string]Token{
 	"if":    TokenIf,
 	"else":  TokenElse,
 	"while": TokenWhile,
-	"fn": TokenFn,
+	"fn":    TokenFn,
 	"true":  TokenTrue,
 	"false": TokenFalse,
 	"nil":   TokenNil,
