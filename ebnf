@@ -5,7 +5,7 @@ var_decl = "let" identifier "=" (expression ";" | function)
 block_decl = "{" declaration* "}"
 
 statement = print_stmt | assign_stmt | if_stmt | while_stmt | expr_stmt
-print_stmt = "print" expression ("," expression)* ";"
+print_stmt = "print" expression ";"
 assign_stmt = identifier "=" expression ";"
 if_stmt = "if" expression block_decl ("else" block_decl | if_stmt))?
 while_stmt = "while" expression block_decl

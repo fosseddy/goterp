@@ -1,5 +1,5 @@
 enum token_kind {
-    TOK_INVALID = 0,
+    TOK_ERR = 0,
 
 	TOK_IDENT,
 	TOK_NUM,

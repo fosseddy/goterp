@@ -1,10 +1,40 @@
 #include <stdio.h>
+#include <assert.h>
+
+#include "lib/mem.h"
 
 #include "scanner.h"
+#include "parser.h"
+
+
+struct value {
+    enum { VAL_NUM } kind;
+    union { int num; } as;
+};
+
+void eval(struct expr *e, struct value *res)
+{
+    struct expr_lit *lit;
+
+    switch (e->kind) {
+    case EXPR_LIT:
+        lit = e->body;
+        switch (lit->kind) {
+        case TOK_NUM:
+            res->kind = VAL_NUM;
+            res->as.num = 69;
+            break;
+        default: assert(0 && "unreachable");
+        }
+        break;
+    default: assert(0 && "unreachable");
+    }
+}
 
 int main(int argc, char **argv)
 {
-    struct scanner s;
+    struct parser p;
+    struct stmt_array stmts;
 
     argc--;
     argv++;
@@ -14,17 +44,28 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    init_scanner(&s, *argv);
+    init_parser(&p, *argv);
+    meminit(&stmts, sizeof(struct stmt), 32);
 
-    for (;;) {
-        struct token t;
+    parse(&p, &stmts);
 
-        scan(&s, &t);
+    for (int i = 0; i < stmts.len; ++i) {
+        struct stmt *s = stmts.buf + i;
+        struct stmt_print *print;
+        struct value res;
 
-        printf("Token Kind: %d\n", t.kind);
-
-        if (t.kind == TOK_EOF) {
+        switch (s->kind) {
+        case STMT_PRINT:
+            print = s->body;
+            eval(&print->value, &res);
+            switch (res.kind) {
+            case VAL_NUM:
+                printf("%d\n", res.as.num);
+                break;
+            default: assert(0 && "unreachable");
+            }
             break;
+        default: assert(0 && "unreachable");
         }
     }
 

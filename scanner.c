@@ -14,7 +14,7 @@ struct kwd {
 static struct kwd keywords[] = {
     {.lit = "print", .tok = TOK_PRINT},
 
-    {.lit = "", .tok = TOK_INVALID} // end value
+    {.lit = "", .tok = TOK_ERR} // end value
 };
 
 static enum token_kind lookup_kwd(struct scanner *s)
@@ -22,14 +22,11 @@ static enum token_kind lookup_kwd(struct scanner *s)
     char *ident = s->src + s->pos;
     int ident_len = s->cur - s->pos;
 
-    for (int i = 0; keywords[i].tok != TOK_INVALID; ++i) {
+    for (int i = 0; keywords[i].tok != TOK_ERR; ++i) {
         struct kwd *kwd = keywords + i;
 
-        if ((int) strlen(kwd->lit) != ident_len) {
-            continue;
-        }
-
-        if (memcmp(ident, kwd->lit, ident_len) == 0) {
+        if ((int) strlen(kwd->lit) == ident_len &&
+                memcmp(ident, kwd->lit, ident_len) == 0) {
             return kwd->tok;
         }
     }
@@ -44,13 +41,13 @@ static int has_src(struct scanner *s)
 
 static int next(struct scanner *s, char ch)
 {
-    int res;
+    int next = s->cur + 1;
 
-    s->cur++;
-    res = has_src(s) == 1 && s->src[s->cur] == ch;
-    s->cur--;
+    if (next < (int) strlen(s->src)) {
+        return s->src[next] == ch;
+    }
 
-    return res;
+    return 0;
 }
 
 static void advance(struct scanner *s)
@@ -81,7 +78,7 @@ static int is_alnum(char ch)
 
 void scan(struct scanner *s, struct token *tok)
 {
-    tok->kind = TOK_INVALID;
+    tok->kind = TOK_ERR;
 
 scan_again:
 

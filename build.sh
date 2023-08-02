@@ -2,7 +2,7 @@
 
 set -xe
 
-files="main.c scanner.c lib/*.c"
+files="main.c scanner.c parser.c lib/*.c"
 outname=main
 
 flags="-g -Werror=declaration-after-statement -Wall -Wextra -pedantic -std=c99"
