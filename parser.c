@@ -46,9 +46,28 @@ static void primary(struct parser *p, struct expr *e)
     assert(0 && "should not be there");
 }
 
-static void term(struct parser *p, struct expr *e)
+static void factor(struct parser *p, struct expr *e)
 {
     primary(p, e);
+
+    if (p->tok.kind == TOK_STAR || p->tok.kind == TOK_SLASH) {
+        struct expr_binary *b = malloc(sizeof(struct expr_binary));
+        // TODO(art): error
+        assert(b != NULL);
+
+        b->op = p->tok.kind;
+        memcpy(&b->x, e, sizeof(struct expr));
+
+        advance(p);
+        factor(p, &b->y);
+
+        e->kind = EXPR_BINARY;
+        e->body = b;
+    }
+}
+static void term(struct parser *p, struct expr *e)
+{
+    factor(p, e);
 
     if (p->tok.kind == TOK_PLUS || p->tok.kind == TOK_MINUS) {
         struct expr_binary *b = malloc(sizeof(struct expr_binary));

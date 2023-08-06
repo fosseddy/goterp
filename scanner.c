@@ -126,6 +126,11 @@ scan_again:
         advance(s);
         return;
 
+    case '*':
+        tok->kind = TOK_STAR;
+        advance(s);
+        return;
+
     case ';':
         tok->kind = TOK_SEMICOLON;
         advance(s);

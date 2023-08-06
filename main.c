@@ -60,6 +60,12 @@ void eval(struct expr *e, struct value *res)
         case TOK_MINUS:
             res->as.num = x.as.num - y.as.num;
             break;
+        case TOK_STAR:
+            res->as.num = x.as.num * y.as.num;
+            break;
+        case TOK_SLASH:
+            res->as.num = x.as.num / y.as.num;
+            break;
         default: assert(0 && "unreachable");
         }
         break;
