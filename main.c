@@ -9,13 +9,20 @@
 #include "parser.h"
 
 struct value {
-    enum { VAL_NUM } kind;
-    union { double num; } as;
+    enum {
+        VAL_NUM
+    } kind;
+
+    union {
+        double num;
+    } as;
 };
 
 void eval(struct expr *e, struct value *res)
 {
     struct expr_lit *lit;
+    struct expr_binary *binary;
+    struct value x, y;
     char *s;
 
     switch (e->kind) {
@@ -36,7 +43,50 @@ void eval(struct expr *e, struct value *res)
         default: assert(0 && "unreachable");
         }
         break;
+    case EXPR_BINARY:
+        binary = e->body;
+        eval(&binary->x, &x);
+        eval(&binary->y, &y);
+
+        // TODO(art): validate values type
+        assert(x.kind == VAL_NUM);
+        assert(y.kind == VAL_NUM);
+        res->kind = VAL_NUM;
+
+        switch(binary->op) {
+        case TOK_PLUS:
+            res->as.num = x.as.num + y.as.num;
+            break;
+        case TOK_MINUS:
+            res->as.num = x.as.num - y.as.num;
+            break;
+        default: assert(0 && "unreachable");
+        }
+        break;
     default: assert(0 && "unreachable");
+    }
+}
+
+void execute(struct stmt *s)
+{
+    struct stmt_print *print;
+    struct value res;
+
+    switch (s->kind) {
+    case STMT_PRINT:
+        print = s->body;
+        eval(&print->value, &res);
+
+        switch (res.kind) {
+        case VAL_NUM:
+            printf("%g\n", res.as.num);
+            break;
+        default:
+            assert(0 && "unreachable");
+        }
+        break;
+    default:
+        assert(0 && "unreachable");
     }
 }
 
@@ -59,24 +109,7 @@ int main(int argc, char **argv)
     parse(&p, &stmts);
 
     for (int i = 0; i < stmts.len; ++i) {
-        struct stmt *s = stmts.buf + i;
-        struct stmt_print *print;
-        struct value res;
-
-        switch (s->kind) {
-        case STMT_PRINT:
-            print = s->body;
-            eval(&print->value, &res);
-
-            switch (res.kind) {
-            case VAL_NUM:
-                printf("%g\n", res.as.num);
-                break;
-            default: assert(0 && "unreachable");
-            }
-            break;
-        default: assert(0 && "unreachable");
-        }
+        execute(stmts.buf + i);
     }
 
     return 0;

@@ -4,6 +4,7 @@ enum token_kind {
 	TOK_NUM,
 
     TOK_PLUS,
+    TOK_MINUS,
 
 	TOK_SLASH,
 	TOK_SEMICOLON,
