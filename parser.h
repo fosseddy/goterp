@@ -6,13 +6,11 @@ struct parser {
 };
 
 enum expr_kind {
-    EXPR_ERR,
     EXPR_LIT
 };
 
 struct expr_lit {
-    enum token_kind kind;
-    char *value;
+    struct token token;
 };
 
 struct expr {
@@ -28,7 +26,6 @@ struct expr_array {
 };
 
 enum stmt_kind {
-    STMT_ERR,
     STMT_PRINT
 };
 

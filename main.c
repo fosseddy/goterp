@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #include "lib/mem.h"
@@ -6,23 +8,30 @@
 #include "scanner.h"
 #include "parser.h"
 
-
 struct value {
     enum { VAL_NUM } kind;
-    union { int num; } as;
+    union { double num; } as;
 };
 
 void eval(struct expr *e, struct value *res)
 {
     struct expr_lit *lit;
+    char *s;
 
     switch (e->kind) {
     case EXPR_LIT:
         lit = e->body;
-        switch (lit->kind) {
+        switch (lit->token.kind) {
         case TOK_NUM:
+            s = malloc(lit->token.lit_len + 1);
+            // TODO(art): error
+            assert(s != NULL);
+            memcpy(s, lit->token.lit, lit->token.lit_len);
+            s[lit->token.lit_len] = '\0';
+            // TODO(art): handle conversion error
+            res->as.num = strtod(s, NULL);
             res->kind = VAL_NUM;
-            res->as.num = 69;
+            free(s);
             break;
         default: assert(0 && "unreachable");
         }
@@ -58,9 +67,10 @@ int main(int argc, char **argv)
         case STMT_PRINT:
             print = s->body;
             eval(&print->value, &res);
+
             switch (res.kind) {
             case VAL_NUM:
-                printf("%d\n", res.as.num);
+                printf("%g\n", res.as.num);
                 break;
             default: assert(0 && "unreachable");
             }

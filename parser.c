@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 #include "lib/mem.h"
@@ -15,7 +17,11 @@ static void advance(struct parser *p) {
 
 static void consume(struct parser *p, enum token_kind kind) {
     // TODO(art): error handling
-    assert(p->tok.kind == kind && "expected something else");
+    if (p->tok.kind != kind) {
+        // TODO(art): translate token enum to text
+        fprintf(stderr, "expected %i, but got %i\n", kind, p->tok.kind);
+        exit(1);
+    }
 
     advance(p);
 }
@@ -27,7 +33,7 @@ static void primary(struct parser *p, struct expr *e)
         // TODO(art): error handling
         assert(lit != NULL);
 
-        lit->kind = p->tok.kind;
+        memcpy(&lit->token, &p->tok, sizeof(struct token));
 
         e->kind = EXPR_LIT;
         e->body = lit;
@@ -74,12 +80,7 @@ void parse(struct parser *p, struct stmt_array *arr)
 {
     while (p->tok.kind != TOK_EOF) {
         struct stmt *s = memnext(arr);
-
-        s->kind = STMT_ERR;
         statement(p, s);
-
-        // TODO(art): error handling
-        assert(s->kind != STMT_ERR);
     }
 }
 

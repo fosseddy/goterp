@@ -21,9 +21,15 @@ static enum token_kind lookup_kwd(struct scanner *s)
 {
     char *ident = s->src + s->pos;
     int ident_len = s->cur - s->pos;
+    int i = 0;
 
-    for (int i = 0; keywords[i].tok != TOK_ERR; ++i) {
+    for (;;) {
         struct kwd *kwd = keywords + i;
+        i++;
+
+        if (kwd->tok == TOK_ERR) {
+            break;
+        }
 
         if ((int) strlen(kwd->lit) == ident_len &&
                 memcmp(ident, kwd->lit, ident_len) == 0) {
@@ -31,19 +37,19 @@ static enum token_kind lookup_kwd(struct scanner *s)
         }
     }
 
-    return TOK_IDENT;
+    return TOK_ERR;
 }
 
 static int has_src(struct scanner *s)
 {
-    return s->cur < (int) strlen(s->src);
+    return s->cur < s->src_len;
 }
 
 static int next(struct scanner *s, char ch)
 {
     int next = s->cur + 1;
 
-    if (next < (int) strlen(s->src)) {
+    if (next < s->src_len) {
         return s->src[next] == ch;
     }
 
@@ -79,6 +85,8 @@ static int is_alnum(char ch)
 void scan(struct scanner *s, struct token *tok)
 {
     tok->kind = TOK_ERR;
+    tok->lit = NULL;
+    tok->lit_len = 0;
 
 scan_again:
 
@@ -108,6 +116,11 @@ scan_again:
         advance(s);
         return;
 
+    case '+':
+        tok->kind = TOK_PLUS;
+        advance(s);
+        return;
+
     case ';':
         tok->kind = TOK_SEMICOLON;
         advance(s);
@@ -118,13 +131,29 @@ scan_again:
             while (is_digit(s->ch) == 1) {
                 advance(s);
             }
+
+            if (s->ch == '.') {
+                advance(s);
+                while (is_digit(s->ch) == 1) {
+                    advance(s);
+                }
+            }
+
             tok->kind = TOK_NUM;
+            tok->lit = s->src + s->pos;
+            tok->lit_len = s->cur - s->pos;
         } else if (is_char(s->ch) == 1) {
             while (is_alnum(s->ch) == 1) {
                 advance(s);
             }
             tok->kind = lookup_kwd(s);
+
+            // TODO(art): remove when TOK_IDENT
+            if (tok->kind == TOK_ERR) {
+                fprintf(stderr, "found identifier");
+            }
         } else {
+            fprintf(stderr, "unknown char %c\n", s->ch);
             advance(s);
         }
     }
@@ -138,6 +167,7 @@ void init_scanner(struct scanner *s, char *filepath)
         exit(1);
     }
 
+    s->src_len = (int) strlen(s->src);
     s->cur = 0;
     s->pos = 0;
     s->ch = s->src[0];

@@ -1,30 +1,11 @@
-program = declaration* EOF
+program = statement* EOF
 
-declaration = var_decl | block_decl | statement
-var_decl = "let" identifier "=" (expression ";" | function)
-block_decl = "{" declaration* "}"
-
-statement = print_stmt | assign_stmt | if_stmt | while_stmt | expr_stmt
+statement = print_stmt
 print_stmt = "print" expression ";"
-assign_stmt = identifier "=" expression ";"
-if_stmt = "if" expression block_decl ("else" block_decl | if_stmt))?
-while_stmt = "while" expression block_decl
-expr_stmt = statement ";"
 
-expression = logic_or
-logic_or = logic_and ("||" logic_and)*
-logic_and = equality ("&&" equality)*
-equality = comparison (("==" | "!=") comparison)*
-comparison = term (("<" | "<=" | ">" | ">=") term)*
-term = factor (("+" | "-") factor)*
-factor = unary (("*" | "/") unary)*
-unary = ("-" | "!") unary | call
-call = primary | identifier "(" fn_args ")"
-primary = identifier | number | string | bool | "nil" | "(" expression ")"
-
-function = "fn" "(" fn_params ")" block_decl
-fn_params = identifier ("," identifier)*
-fn_args = expression ("," expression)*
+expression = term
+term = primary ("+" primary)*
+primary = number
 
 identifier = alpha (alpha | digit)*
 number = digit+ ("." digit+)?
