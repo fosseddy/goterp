@@ -6,7 +6,7 @@ import (
 )
 
 type Parser struct {
-	S scanner.Scanner
+	S   scanner.Scanner
 	Tok scanner.Token
 }
 
@@ -33,8 +33,20 @@ func (p *Parser) primary() Expr {
 	panic("unhandled primary")
 }
 
+func (p *Parser) term() Expr {
+	e := p.primary()
+
+	if p.Tok.Kind == scanner.TokenPlus || p.Tok.Kind == scanner.TokenMinus {
+		op := p.Tok.Kind
+		p.advance()
+		e = ExprBinary{e, op, p.term()}
+	}
+
+	return e
+}
+
 func (p *Parser) expression() Expr {
-	return p.primary()
+	return p.term()
 }
 
 func (p *Parser) printStmt() Stmt {

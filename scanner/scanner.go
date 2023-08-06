@@ -12,6 +12,8 @@ const (
 
 	TokenNum
 
+	TokenPlus
+	TokenMinus
 	TokenSlash
 
 	TokenSemicolon
@@ -31,6 +33,10 @@ func (tok TokenKind) String() string {
 	case TokenNum:
 		return "Number"
 
+	case TokenPlus:
+		return "+"
+	case TokenMinus:
+		return "-"
 	case TokenSlash:
 		return "/"
 
@@ -127,6 +133,12 @@ scanAgain:
 			goto scanAgain
 		}
 		tok.Kind = TokenSlash
+		s.advance()
+	case '+':
+		tok.Kind = TokenPlus
+		s.advance()
+	case '-':
+		tok.Kind = TokenMinus
 		s.advance()
 	case ';':
 		tok.Kind = TokenSemicolon

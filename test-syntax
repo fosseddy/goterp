@@ -1,4 +1,2 @@
-// comment
-
-print 3;
-print 3.5;
+print 3 + 3.5; // 6.5
+print 2.5 - 1.8; // 0.7
