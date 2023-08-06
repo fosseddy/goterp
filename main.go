@@ -26,7 +26,7 @@ func execute(s parser.Stmt) {
 	switch s := s.(type) {
 	case parser.StmtPrint:
 		switch v := eval(s.Value).(type) {
-		case float64:
+		case float64, bool:
 			fmt.Println(v)
 		default:
 			panic("unknown value type")
@@ -49,6 +49,10 @@ func eval(e parser.Expr) Value {
 				os.Exit(1)
 			}
 			return v
+		case scanner.TokenTrue:
+			return true
+		case scanner.TokenFalse:
+			return false
 		default:
 			panic("unknown literal token kind")
 		}

@@ -6,7 +6,7 @@ print_stmt = "print" expression ";"
 expression = term
 term = factor (("+" | "-") term)*
 factor = primary (("*" | "/") factor)*
-primary = number | "(" expression ")"
+primary = number | bool | "(" expression ")"
 
 identifier = alpha (alpha | digit)*
 number = digit+ ("." digit+)?

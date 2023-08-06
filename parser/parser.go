@@ -24,7 +24,7 @@ func (p *Parser) consume(kind scanner.TokenKind) {
 }
 
 func (p *Parser) primary() Expr {
-	if p.Tok.Kind == scanner.TokenNum {
+	if p.Tok.Kind == scanner.TokenNum || p.Tok.Kind == scanner.TokenTrue || p.Tok.Kind == scanner.TokenFalse {
 		e := ExprLit{p.Tok}
 		p.advance()
 		return e

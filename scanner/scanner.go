@@ -22,6 +22,8 @@ const (
 	TokenSemicolon
 
 	TokenPrint
+	TokenTrue
+	TokenFalse
 
 	TokenEof
 )
@@ -54,6 +56,10 @@ func (tok TokenKind) String() string {
 
 	case TokenPrint:
 		return "print"
+	case TokenTrue:
+		return "true"
+	case TokenFalse:
+		return "false"
 
 	case TokenEof:
 		return "Eof"
@@ -64,6 +70,8 @@ func (tok TokenKind) String() string {
 
 var keywords = map[string]TokenKind{
 	"print": TokenPrint,
+	"true": TokenTrue,
+	"false": TokenFalse,
 }
 
 func lookupKeyword(s string) TokenKind {
