@@ -19,6 +19,8 @@ enum token_kind {
 
 struct scanner {
     char *src;
+    char *filepath;
+    int line;
     int src_len;
     int cur;
     int pos;

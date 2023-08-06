@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "lib/os.h"
 
@@ -21,16 +22,8 @@ static enum token_kind lookup_kwd(struct scanner *s)
 {
     char *ident = s->src + s->pos;
     int ident_len = s->cur - s->pos;
-    int i = 0;
 
-    for (;;) {
-        struct kwd *kwd = keywords + i;
-        i++;
-
-        if (kwd->tok == TOK_ERR) {
-            break;
-        }
-
+    for (struct kwd *kwd = keywords; kwd->tok != TOK_ERR; kwd++) {
         if ((int) strlen(kwd->lit) == ident_len &&
                 memcmp(ident, kwd->lit, ident_len) == 0) {
             return kwd->tok;
@@ -102,6 +95,9 @@ scan_again:
     case '\t':
     case '\r':
     case '\n':
+        if (s->ch == '\n') {
+            s->line++;
+        }
         advance(s);
         goto scan_again;
 
@@ -169,12 +165,10 @@ scan_again:
             tok->kind = lookup_kwd(s);
 
             // TODO(art): remove when TOK_IDENT
-            if (tok->kind == TOK_ERR) {
-                fprintf(stderr, "found identifier");
-            }
+            assert(tok->kind != TOK_ERR && "found identifier");
         } else {
-            fprintf(stderr, "unknown char %c\n", s->ch);
-            advance(s);
+            fprintf(stderr, "%s:%d:unexpected character %c\n", s->filepath, s->line, s->ch);
+            exit(1);
         }
     }
 }
@@ -187,8 +181,10 @@ void init_scanner(struct scanner *s, char *filepath)
         exit(1);
     }
 
+    s->filepath = filepath;
     s->src_len = (int) strlen(s->src);
     s->cur = 0;
     s->pos = 0;
+    s->line = 1;
     s->ch = s->src[0];
 }
