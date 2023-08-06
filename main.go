@@ -63,6 +63,10 @@ func eval(e parser.Expr) Value {
 			return xf + yf
 		case scanner.TokenMinus:
 			return xf - yf
+		case scanner.TokenStar:
+			return xf * yf
+		case scanner.TokenSlash:
+			return xf / yf
 		default:
 			panic("unknown binary expression operator")
 		}

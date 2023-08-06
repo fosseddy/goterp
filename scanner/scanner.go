@@ -14,8 +14,11 @@ const (
 
 	TokenPlus
 	TokenMinus
+	TokenStar
 	TokenSlash
 
+	TokenLParen
+	TokenRParen
 	TokenSemicolon
 
 	TokenPrint
@@ -37,9 +40,15 @@ func (tok TokenKind) String() string {
 		return "+"
 	case TokenMinus:
 		return "-"
+	case TokenStar:
+		return "*"
 	case TokenSlash:
 		return "/"
 
+	case TokenLParen:
+		return "("
+	case TokenRParen:
+		return ")"
 	case TokenSemicolon:
 		return ";"
 
@@ -139,6 +148,15 @@ scanAgain:
 		s.advance()
 	case '-':
 		tok.Kind = TokenMinus
+		s.advance()
+	case '*':
+		tok.Kind = TokenStar
+		s.advance()
+	case '(':
+		tok.Kind = TokenLParen
+		s.advance()
+	case ')':
+		tok.Kind = TokenRParen
 		s.advance()
 	case ';':
 		tok.Kind = TokenSemicolon

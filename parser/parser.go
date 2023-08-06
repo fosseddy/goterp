@@ -30,11 +30,30 @@ func (p *Parser) primary() Expr {
 		return e
 	}
 
+	if p.Tok.Kind == scanner.TokenLParen {
+		p.advance()
+		e := p.expression()
+		p.consume(scanner.TokenRParen)
+		return e
+	}
+
 	panic("unhandled primary")
 }
 
-func (p *Parser) term() Expr {
+func (p *Parser) factor() Expr {
 	e := p.primary()
+
+	if p.Tok.Kind == scanner.TokenStar || p.Tok.Kind == scanner.TokenSlash {
+		op := p.Tok.Kind
+		p.advance()
+		e = ExprBinary{e, op, p.factor()}
+	}
+
+	return e
+}
+
+func (p *Parser) term() Expr {
+	e := p.factor()
 
 	if p.Tok.Kind == scanner.TokenPlus || p.Tok.Kind == scanner.TokenMinus {
 		op := p.Tok.Kind
