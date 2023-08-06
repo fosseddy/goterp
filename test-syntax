@@ -1,4 +1,4 @@
 // comment
 
-print 1 + 2 * 3; // 7
-print (1 + 2) * 3; // 9
+print 3;
+print 3.5;
