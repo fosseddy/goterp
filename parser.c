@@ -8,6 +8,8 @@
 #include "scanner.h"
 #include "parser.h"
 
+static void expression(struct parser *, struct expr *);
+
 static void advance(struct parser *p) {
     scan(&p->s, &p->tok);
 
@@ -42,6 +44,13 @@ static void primary(struct parser *p, struct expr *e)
         return;
     }
 
+    if (p->tok.kind == TOK_LPAREN) {
+        advance(p);
+        expression(p, e);
+        consume(p, TOK_RPAREN);
+        return;
+    }
+
     // TODO(art): should not be there after all
     assert(0 && "should not be there");
 }
@@ -65,6 +74,7 @@ static void factor(struct parser *p, struct expr *e)
         e->body = b;
     }
 }
+
 static void term(struct parser *p, struct expr *e)
 {
     factor(p, e);

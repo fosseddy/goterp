@@ -8,6 +8,8 @@ enum token_kind {
     TOK_STAR,
 	TOK_SLASH,
 
+    TOK_LPAREN,
+    TOK_RPAREN,
 	TOK_SEMICOLON,
 
 	TOK_PRINT,

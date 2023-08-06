@@ -131,6 +131,16 @@ scan_again:
         advance(s);
         return;
 
+    case '(':
+        tok->kind = TOK_LPAREN;
+        advance(s);
+        return;
+
+    case ')':
+        tok->kind = TOK_RPAREN;
+        advance(s);
+        return;
+
     case ';':
         tok->kind = TOK_SEMICOLON;
         advance(s);
