@@ -7,6 +7,7 @@ const (
 
 	TokenIdent
 	TokenNum
+	TokenStr
 
 	TokenPlus
 	TokenMinus
@@ -40,6 +41,8 @@ func (kind TokenKind) String() string {
 		return "identifier"
 	case TokenNum:
 		return "number"
+	case TokenStr:
+		return "string"
 
 	case TokenPlus:
 		return "+"

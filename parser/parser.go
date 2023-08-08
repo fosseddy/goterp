@@ -42,7 +42,7 @@ func (p *Parser) next(kinds ...scanner.TokenKind) bool {
 }
 
 func (p *Parser) primary() Expr {
-	if p.next(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil) {
+	if p.next(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil, scanner.TokenStr) {
 		e := ExprLit{p.Tok}
 		p.advance()
 		return e

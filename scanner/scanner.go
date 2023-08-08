@@ -149,6 +149,18 @@ scanAgain:
 	case ')':
 		s.makeToken(tok, TokenRParen, "")
 		s.advance()
+	case '"':
+		s.advance()
+		for !s.isEof && s.Ch != '"' {
+			s.advance()
+		}
+		if s.isEof {
+			fmt.Fprintf(os.Stderr, "%s:%d unterminated string\n", s.Filepath, s.Line)
+			os.Exit(1)
+		}
+		s.Pos++
+		s.makeToken(tok, TokenStr, s.literal())
+		s.advance()
 	default:
 		switch {
 		case isdigit(s.Ch):
