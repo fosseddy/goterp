@@ -42,9 +42,16 @@ func (p *Parser) next(kinds ...scanner.TokenKind) bool {
 }
 
 func (p *Parser) primary() Expr {
-	if p.Tok.Kind == scanner.TokenNum {
+	if p.next(scanner.TokenNum) {
 		e := ExprLit{p.Tok}
 		p.advance()
+		return e
+	}
+
+	if p.next(scanner.TokenLParen) {
+		p.advance()
+		e := p.expression()
+		p.consume(scanner.TokenRParen)
 		return e
 	}
 

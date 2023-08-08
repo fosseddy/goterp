@@ -14,6 +14,8 @@ const (
 	TokenSlash
 
 	TokenSemicolon
+	TokenLParen
+	TokenRParen
 
 	TokenPrint
 
@@ -38,6 +40,10 @@ func (kind TokenKind) String() string {
 
 	case TokenSemicolon:
 		return ";"
+	case TokenLParen:
+		return "("
+	case TokenRParen:
+		return ")"
 
 	case TokenPrint:
 		return "print"

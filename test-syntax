@@ -1,4 +1,4 @@
 // this is comment
 
-print 18.3 / 2.5; // 7.32
-print 5.2 * 3.4; // 17.68
+print 2 + 3 * 2; // 8
+print (2 + 3) * 2; // 10

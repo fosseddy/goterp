@@ -111,6 +111,12 @@ scanAgain:
 	case ';':
 		s.makeToken(tok, TokenSemicolon, "")
 		s.advance()
+	case '(':
+		s.makeToken(tok, TokenLParen, "")
+		s.advance()
+	case ')':
+		s.makeToken(tok, TokenRParen, "")
+		s.advance()
 	default:
 		switch {
 		case isdigit(s.Ch):
