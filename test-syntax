@@ -1,4 +1,4 @@
 // this is comment
 
-print 2 + 3 * 2; // 8
-print (2 + 3) * 2; // 10
+print !true; // false
+print -(3 + 3); // -6

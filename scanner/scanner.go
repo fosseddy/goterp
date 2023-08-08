@@ -108,6 +108,38 @@ scanAgain:
 		}
 		s.makeToken(tok, TokenSlash, "")
 		s.advance()
+	case '<':
+		if s.next('=') {
+			s.advance()
+			s.makeToken(tok, TokenLessEq, "")
+		} else {
+			s.makeToken(tok, TokenLess, "")
+		}
+		s.advance()
+	case '>':
+		if s.next('=') {
+			s.advance()
+			s.makeToken(tok, TokenGreaterEq, "")
+		} else {
+			s.makeToken(tok, TokenGreater, "")
+		}
+		s.advance()
+	case '=':
+		if s.next('=') {
+			s.advance()
+			s.makeToken(tok, TokenEqEq, "")
+		} else {
+			s.makeToken(tok, TokenEq, "")
+		}
+		s.advance()
+	case '!':
+		if s.next('=') {
+			s.advance()
+			s.makeToken(tok, TokenBangEq, "")
+		} else {
+			s.makeToken(tok, TokenBang, "")
+		}
+		s.advance()
 	case ';':
 		s.makeToken(tok, TokenSemicolon, "")
 		s.advance()

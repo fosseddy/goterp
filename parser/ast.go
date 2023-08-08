@@ -14,6 +14,11 @@ type ExprLit struct {
 	Value scanner.Token
 }
 
+type ExprUnary struct {
+	Op scanner.TokenKind
+	X Expr
+}
+
 type ExprBinary struct {
 	X Expr
 	Op scanner.TokenKind

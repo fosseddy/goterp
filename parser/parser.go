@@ -42,7 +42,7 @@ func (p *Parser) next(kinds ...scanner.TokenKind) bool {
 }
 
 func (p *Parser) primary() Expr {
-	if p.next(scanner.TokenNum) {
+	if p.next(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse) {
 		e := ExprLit{p.Tok}
 		p.advance()
 		return e
@@ -58,13 +58,23 @@ func (p *Parser) primary() Expr {
 	panic(fmt.Sprintf("%s:%d unknown primary %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
 }
 
+func (p *Parser) unary() Expr {
+	if p.next(scanner.TokenBang, scanner.TokenMinus) {
+		op := p.Tok.Kind
+		p.advance()
+		return ExprUnary{op, p.unary()}
+	}
+
+	return p.primary()
+}
+
 func (p *Parser) factor() Expr {
-	e := p.primary()
+	e := p.unary()
 
 	if (p.next(scanner.TokenStar, scanner.TokenSlash)) {
 		op := p.Tok.Kind
 		p.advance()
-		return ExprBinary{e, op, p.factor()}
+		return ExprBinary{e, op, p.unary()}
 	}
 
 	return e
@@ -76,14 +86,38 @@ func (p *Parser) term() Expr {
 	if (p.next(scanner.TokenPlus, scanner.TokenMinus)) {
 		op := p.Tok.Kind
 		p.advance()
+		return ExprBinary{e, op, p.factor()}
+	}
+
+	return e
+}
+
+func (p *Parser) comparison() Expr {
+	e := p.term()
+
+	if p.next(scanner.TokenLess, scanner.TokenGreater, scanner.TokenLessEq, scanner.TokenGreaterEq) {
+		op := p.Tok.Kind
+		p.advance()
 		return ExprBinary{e, op, p.term()}
 	}
 
 	return e
 }
 
+func (p *Parser) equality() Expr {
+	e := p.comparison()
+
+	if p.next(scanner.TokenEqEq, scanner.TokenBangEq) {
+		op := p.Tok.Kind
+		p.advance()
+		return ExprBinary{e, op, p.comparison()}
+	}
+
+	return e
+}
+
 func (p *Parser) expression() Expr {
-	return p.term()
+	return p.equality()
 }
 
 func (p *Parser) printStmt() Stmt {

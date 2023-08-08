@@ -13,11 +13,22 @@ const (
 	TokenStar
 	TokenSlash
 
+	TokenLess
+	TokenGreater
+	TokenLessEq
+	TokenGreaterEq
+	TokenEq
+	TokenEqEq
+	TokenBang
+	TokenBangEq
+
 	TokenSemicolon
 	TokenLParen
 	TokenRParen
 
 	TokenPrint
+	TokenTrue
+	TokenFalse
 
 	TokenEof
 )
@@ -38,6 +49,23 @@ func (kind TokenKind) String() string {
 	case TokenSlash:
 		return "/"
 
+	case TokenLess:
+		return "<"
+	case TokenGreater:
+		return ">"
+	case TokenLessEq:
+		return "<="
+	case TokenGreaterEq:
+		return ">="
+	case TokenEq:
+		return "="
+	case TokenEqEq:
+		return "=="
+	case TokenBang:
+		return "!"
+	case TokenBangEq:
+		return "!="
+
 	case TokenSemicolon:
 		return ";"
 	case TokenLParen:
@@ -47,6 +75,10 @@ func (kind TokenKind) String() string {
 
 	case TokenPrint:
 		return "print"
+	case TokenTrue:
+		return "true"
+	case TokenFalse:
+		return "false"
 
 	case TokenEof:
 		return "end of file"
@@ -64,6 +96,8 @@ type Token struct {
 
 var keywords = map[string]TokenKind{
 	"print": TokenPrint,
+	"true": TokenTrue,
+	"false": TokenFalse,
 }
 
 func lookupKeyword(s string) TokenKind {

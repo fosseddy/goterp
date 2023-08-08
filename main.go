@@ -36,6 +36,10 @@ func eval(e parser.Expr) Value {
 				os.Exit(1)
 			}
 			return v
+		case scanner.TokenTrue:
+			return true
+		case scanner.TokenFalse:
+			return false
 		default:
 			panic("unknown literal kind")
 		}
@@ -52,8 +56,32 @@ func eval(e parser.Expr) Value {
 			return xf * yf
 		case scanner.TokenSlash:
 			return xf / yf
+		case scanner.TokenLess:
+			return xf < yf
+		case scanner.TokenGreater:
+			return xf > yf
+		case scanner.TokenLessEq:
+			return xf <= yf
+		case scanner.TokenGreaterEq:
+			return xf >= yf
+		case scanner.TokenEqEq:
+			return xf == yf
+		case scanner.TokenBangEq:
+			return xf != yf
 		default:
-			panic("unknown operation")
+			panic("unknown binary operation")
+		}
+	case parser.ExprUnary:
+		x := eval(e.X)
+		switch e.Op {
+		case scanner.TokenBang:
+			xb := x.(bool)
+			return !xb
+		case scanner.TokenMinus:
+			xf := x.(float64)
+			return -xf
+		default:
+			panic("unknown unary operation")
 		}
 	default:
 		panic("unknown expression kind")
@@ -66,7 +94,7 @@ func execute(s parser.Stmt) {
 		v := eval(s.Value)
 
 		switch v.(type) {
-		case float64:
+		case float64, bool:
 			fmt.Println(v)
 		default:
 			panic("unknown value kind")
