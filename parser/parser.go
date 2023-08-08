@@ -51,8 +51,20 @@ func (p *Parser) primary() Expr {
 	panic(fmt.Sprintf("%s:%d unknown primary %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
 }
 
-func (p *Parser) term() Expr {
+func (p *Parser) factor() Expr {
 	e := p.primary()
+
+	if (p.next(scanner.TokenStar, scanner.TokenSlash)) {
+		op := p.Tok.Kind
+		p.advance()
+		return ExprBinary{e, op, p.factor()}
+	}
+
+	return e
+}
+
+func (p *Parser) term() Expr {
+	e := p.factor()
 
 	if (p.next(scanner.TokenPlus, scanner.TokenMinus)) {
 		op := p.Tok.Kind

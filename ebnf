@@ -4,7 +4,8 @@ statement = print_stmt
 print_stmt = "print" expression ";"
 
 expression = term
-term = primary (("+" | "-") term)*
+term = factor (("+" | "-") term)*
+factor = primary (("*" | "/") factor)*
 primary = number
 
 identifier = alpha (alpha | digit)*

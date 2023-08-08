@@ -96,6 +96,9 @@ scanAgain:
 	case '-':
 		s.makeToken(tok, TokenMinus, "")
 		s.advance()
+	case '*':
+		s.makeToken(tok, TokenStar, "")
+		s.advance()
 	case '/':
 		if s.next('/') {
 			for !s.isEof && s.Ch != '\n' {

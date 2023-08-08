@@ -10,6 +10,7 @@ const (
 
 	TokenPlus
 	TokenMinus
+	TokenStar
 	TokenSlash
 
 	TokenSemicolon
@@ -30,6 +31,8 @@ func (kind TokenKind) String() string {
 		return "+"
 	case TokenMinus:
 		return "-"
+	case TokenStar:
+		return "*"
 	case TokenSlash:
 		return "/"
 
