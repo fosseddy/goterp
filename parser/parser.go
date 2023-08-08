@@ -1,15 +1,14 @@
 package parser
 
 import (
-	"os"
 	"fmt"
-	"log"
 	"goterp/scanner"
+	"os"
 )
 
 type Parser struct {
 	Tok scanner.Token
-	S scanner.Scanner
+	S   scanner.Scanner
 }
 
 func Make(p *Parser, filepath string) {
@@ -33,53 +32,41 @@ func (p *Parser) consume(kind scanner.TokenKind) {
 	p.advance()
 }
 
-func (p *Parser) primary(e *Expr) {
+func (p *Parser) primary() Expr {
 	if p.Tok.Kind == scanner.TokenNum {
-		var el LitExpr
-		
-		el.Value = p.Tok
-		e.Kind = ExprLit
-		e.Body = el
-
+		e := ExprLit{p.Tok}
 		p.advance()
-		return
+		return e
 	}
 
-	log.Fatalf("%s:%d:unknown primary expression %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind)
+	panic(fmt.Sprintf("%s:%d:unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
 }
 
-func (p *Parser) expression(e *Expr) {
-	p.primary(e)
+func (p *Parser) expression() Expr {
+	return p.primary()
 }
 
-func (p *Parser) printStmt(s *Stmt) {
-	var ps PrintStmt;
-
+func (p *Parser) printStmt() Stmt {
 	p.advance()
-	p.expression(&ps.Value)
+	s := StmtPrint{p.expression()}
 	p.consume(scanner.TokenSemicolon)
 
-	s.Kind = StmtPrint
-	s.Body = ps
+	return s
 }
 
-func (p *Parser) statement(s *Stmt) {
+func (p *Parser) statement() Stmt {
 	if p.Tok.Kind == scanner.TokenPrint {
-		p.printStmt(s)
-		return
+		return p.printStmt()
 	}
 
-	log.Fatalf("%s:%d:unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind)
+	panic(fmt.Sprintf("%s:%d:unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
 }
 
 func (p *Parser) Parse() []Stmt {
-	ss := make([]Stmt, 0, 64)
+	ss := make([]Stmt, 0, 256)
 
 	for p.Tok.Kind != scanner.TokenEof {
-		var s Stmt
-
-		p.statement(&s)
-		ss = append(ss, s)
+		ss = append(ss, p.statement())
 	}
 
 	return ss

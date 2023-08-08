@@ -2,32 +2,14 @@ package parser
 
 import "goterp/scanner"
 
-type StmtKind int
+type Stmt interface{}
 
-const (
-	StmtPrint StmtKind = iota
-)
-
-type Stmt struct {
-	Kind StmtKind
-	Body interface{}
-}
-
-type PrintStmt struct {
+type StmtPrint struct {
 	Value Expr
 }
 
-type ExprKind int
+type Expr interface{}
 
-const (
-	ExprLit ExprKind = iota
-)
-
-type Expr struct {
-	Kind ExprKind
-	Body interface{}
-}
-
-type LitExpr struct {
+type ExprLit struct {
 	Value scanner.Token
 }

@@ -8,7 +8,6 @@ import (
 
 type Scanner struct {
 	Src      []byte
-	SrcLen   int
 	Filepath string
 	Pos      int
 	Cur      int
@@ -24,13 +23,13 @@ func Make(s *Scanner, filepath string) {
 	}
 
 	s.Src = src
-	s.SrcLen = len(src)
 	s.Filepath = filepath
 	s.Pos = 0
 	s.Cur = 0
 	s.Line = 1
+	s.isEof = false
 
-	if s.SrcLen > 0 {
+	if len(s.Src) > 0 {
 		s.Ch = s.Src[0]
 	}
 }
@@ -40,7 +39,7 @@ func (s *Scanner) advance() {
 		return
 	}
 
-	if s.Cur + 1 >= s.SrcLen {
+	if s.Cur+1 >= len(s.Src) {
 		s.isEof = true
 		return
 	}

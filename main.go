@@ -2,62 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"log"
-	"strconv"
-	"goterp/scanner"
 	"goterp/parser"
+	"goterp/scanner"
+	"os"
+	"strconv"
 )
-
-type ValueKind int
-
-const (
-	ValueNum ValueKind = iota
-)
-
-type Value struct {
-	Kind ValueKind
-	Num float64
-}
-
-func eval(e parser.Expr, res *Value) {
-	switch e.Kind {
-	case parser.ExprLit:
-		el := e.Body.(parser.LitExpr)
-		switch el.Value.Kind {
-		case scanner.TokenNum:
-			f, err := strconv.ParseFloat(el.Value.Lit, 64)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			res.Kind = ValueNum
-			res.Num = f
-		default:
-			log.Fatal("unknown literal kind")
-		}
-	default:
-		log.Fatal("unknown expression kind")
-	}
-}
-
-func execute(s parser.Stmt) {
-	switch s.Kind {
-	case parser.StmtPrint:
-		var res Value
-		ps := s.Body.(parser.PrintStmt)
-		eval(ps.Value, &res)
-
-		switch res.Kind {
-		case ValueNum:
-			fmt.Printf("%g\n", res.Num)
-		default:
-			log.Fatal("unknown value kind")
-		}
-	default:
-		log.Fatal("unknown statement kind")
-	}
-}
 
 func main() {
 	var p parser.Parser
@@ -71,5 +20,42 @@ func main() {
 
 	for _, s := range p.Parse() {
 		execute(s)
+	}
+}
+
+type Value interface{}
+
+func eval(e parser.Expr) Value {
+	switch e := e.(type) {
+	case parser.ExprLit:
+		switch e.Value.Kind {
+		case scanner.TokenNum:
+			v, err := strconv.ParseFloat(e.Value.Lit, 64)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			return v
+		default:
+			panic("unknown literal kind")
+		}
+	default:
+		panic("unknown expression kind")
+	}
+}
+
+func execute(s parser.Stmt) {
+	switch s := s.(type) {
+	case parser.StmtPrint:
+		v := eval(s.Value)
+
+		switch v.(type) {
+		case float64:
+			fmt.Println(v)
+		default:
+			panic("unknown value kind")
+		}
+	default:
+		panic("unknown statement kind")
 	}
 }
