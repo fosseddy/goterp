@@ -1,4 +1,5 @@
 // this is comment
 
-print true && false; // false
-print true || false; // true
+let a = 69;
+
+print a;

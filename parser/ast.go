@@ -8,6 +8,11 @@ type StmtPrint struct {
 	Value Expr
 }
 
+type StmtLet struct {
+	Name string
+	Value Expr
+}
+
 type Expr interface{}
 
 type ExprLit struct {

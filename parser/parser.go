@@ -42,7 +42,7 @@ func (p *Parser) next(kinds ...scanner.TokenKind) bool {
 }
 
 func (p *Parser) primary() Expr {
-	if p.next(scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil, scanner.TokenStr) {
+	if p.next(scanner.TokenIdent, scanner.TokenNum, scanner.TokenTrue, scanner.TokenFalse, scanner.TokenNil, scanner.TokenStr) {
 		e := ExprLit{p.Tok}
 		p.advance()
 		return e
@@ -150,9 +150,28 @@ func (p *Parser) printStmt() Stmt {
 	return s
 }
 
+func (p *Parser) letStmt() Stmt {
+	p.advance()
+
+	name := p.Tok.Lit
+
+	p.consume(scanner.TokenIdent)
+	p.consume(scanner.TokenEq)
+
+	e := p.expression()
+
+	p.consume(scanner.TokenSemicolon)
+
+	return StmtLet{name, e}
+}
+
 func (p *Parser) statement() Stmt {
-	if p.Tok.Kind == scanner.TokenPrint {
+	if p.next(scanner.TokenPrint) {
 		return p.printStmt()
+	}
+
+	if p.next(scanner.TokenLet) {
+		return p.letStmt()
 	}
 
 	panic(fmt.Sprintf("%s:%d unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))

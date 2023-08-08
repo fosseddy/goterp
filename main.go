@@ -25,6 +25,8 @@ func main() {
 
 type Value interface{}
 
+var env = map[string]Value{}
+
 func eval(e parser.Expr) Value {
 	switch e := e.(type) {
 	case parser.ExprLit:
@@ -44,6 +46,14 @@ func eval(e parser.Expr) Value {
 			return nil
 		case scanner.TokenStr:
 			return e.Value.Lit
+		case scanner.TokenIdent:
+			v, ok := env[e.Value.Lit];
+			if !ok {
+				// TODO(art): file and line info
+				fmt.Fprintf(os.Stderr, "identifier %s does not exist\n", e.Value.Lit)
+				os.Exit(1)
+			}
+			return v
 		default:
 			panic("unknown literal kind")
 		}
@@ -121,6 +131,9 @@ func execute(s parser.Stmt) {
 		default:
 			panic("unknown value kind")
 		}
+	case parser.StmtLet:
+		v := eval(s.Value)
+		env[s.Name] = v
 	default:
 		panic("unknown statement kind")
 	}
@@ -159,10 +172,6 @@ func checkStr(x Value) string {
 
 	// TODO(art): show file and line
 	panic("expected string")
-}
-
-func checkStrs(x, y Value) (string, string) {
-	return checkStr(x), checkStr(y)
 }
 
 func checkEquality(x, y Value) bool {

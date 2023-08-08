@@ -1,7 +1,8 @@
 program = statement* EOF
 
-statement = print_stmt
+statement = print_stmt | let_stmt
 print_stmt = "print" expression ";"
+let_stmt = "let" identifier "=" expression ";"
 
 expression = logic_or
 logic_or = logic_and ("||" logic_and)*
@@ -11,7 +12,7 @@ comparison = term (("<" | ">" | "<=" | ">=") term)*
 term = factor (("+" | "-") factor)*
 factor = unary (("*" | "/") unary)*
 unary = ("!" | "-") unary | primary
-primary = number | bool | string | "nil | "(" expression ")"
+primary = identifier | number | bool | string | "nil | "(" expression ")"
 
 identifier = alpha (alpha | digit)*
 number = digit+ ("." digit+)?
