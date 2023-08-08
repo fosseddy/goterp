@@ -17,6 +17,7 @@ struct value {
     enum {
         VAL_NUM = 0
     } kind;
+
     union {
         double num;
     } as;
@@ -24,11 +25,10 @@ struct value {
 
 void eval(struct expr *e, struct value *val)
 {
-    struct expr_lit *el;
-
     switch (e->kind) {
-    case EXPR_LIT:
-        el = e->body;
+    case EXPR_LIT: {
+        struct expr_lit *el = e->body;
+
         switch (el->value.kind) {
         case TOK_NUM:
             // TODO(art): errors
@@ -40,7 +40,7 @@ void eval(struct expr *e, struct value *val)
             fprintf(stderr, "unknown literal value kind\n");
             exit(1);
         }
-        break;
+    } break;
     default:
         fprintf(stderr, "unknown statement kind\n");
         exit(1);
@@ -49,13 +49,13 @@ void eval(struct expr *e, struct value *val)
 
 void execute(struct stmt *s)
 {
-    struct stmt_print *sp;
-    struct value res;
-
     switch (s->kind) {
-    case STMT_PRINT:
-        sp = s->body;
+    case STMT_PRINT: {
+        struct stmt_print *sp = s->body;
+        struct value res;
+
         eval(&sp->value, &res);
+
         switch (res.kind) {
         case VAL_NUM:
             printf("%g\n", res.as.num);
@@ -64,7 +64,7 @@ void execute(struct stmt *s)
             fprintf(stderr, "unknown value kind\n");
             exit(1);
         }
-        break;
+    } break;
     default:
         fprintf(stderr, "unknown statement kind\n");
         exit(1);
