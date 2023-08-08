@@ -1,4 +1,3 @@
 // this is comment
 
-print !true; // false
-print -(3 + 3); // -6
+print nil;

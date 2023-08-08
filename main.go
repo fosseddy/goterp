@@ -40,6 +40,8 @@ func eval(e parser.Expr) Value {
 			return true
 		case scanner.TokenFalse:
 			return false
+		case scanner.TokenNil:
+			return nil
 		default:
 			panic("unknown literal kind")
 		}
@@ -96,6 +98,8 @@ func execute(s parser.Stmt) {
 		switch v.(type) {
 		case float64, bool:
 			fmt.Println(v)
+		case nil:
+			fmt.Println("nil")
 		default:
 			panic("unknown value kind")
 		}

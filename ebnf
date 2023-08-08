@@ -9,7 +9,7 @@ comparison = term (("<" | ">" | "<=" | ">=") term)*
 term = factor (("+" | "-") factor)*
 factor = unary (("*" | "/") unary)*
 unary = ("!" | "-") unary | primary
-primary = number | bool | "(" expression ")"
+primary = number | bool | "nil | "(" expression ")"
 
 identifier = alpha (alpha | digit)*
 number = digit+ ("." digit+)?

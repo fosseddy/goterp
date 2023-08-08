@@ -29,6 +29,7 @@ const (
 	TokenPrint
 	TokenTrue
 	TokenFalse
+	TokenNil
 
 	TokenEof
 )
@@ -79,6 +80,8 @@ func (kind TokenKind) String() string {
 		return "true"
 	case TokenFalse:
 		return "false"
+	case TokenNil:
+		return "nil"
 
 	case TokenEof:
 		return "end of file"
@@ -98,6 +101,7 @@ var keywords = map[string]TokenKind{
 	"print": TokenPrint,
 	"true": TokenTrue,
 	"false": TokenFalse,
+	"nil": TokenNil,
 }
 
 func lookupKeyword(s string) TokenKind {
