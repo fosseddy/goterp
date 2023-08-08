@@ -71,7 +71,7 @@ func (p *Parser) unary() Expr {
 func (p *Parser) factor() Expr {
 	e := p.unary()
 
-	if (p.next(scanner.TokenStar, scanner.TokenSlash)) {
+	if p.next(scanner.TokenStar, scanner.TokenSlash) {
 		op := p.Tok.Kind
 		p.advance()
 		return ExprBinary{e, op, p.unary()}
@@ -83,7 +83,7 @@ func (p *Parser) factor() Expr {
 func (p *Parser) term() Expr {
 	e := p.factor()
 
-	if (p.next(scanner.TokenPlus, scanner.TokenMinus)) {
+	if p.next(scanner.TokenPlus, scanner.TokenMinus) {
 		op := p.Tok.Kind
 		p.advance()
 		return ExprBinary{e, op, p.factor()}

@@ -9,7 +9,7 @@ type StmtPrint struct {
 }
 
 type StmtLet struct {
-	Name string
+	Name  string
 	Value Expr
 }
 
@@ -21,11 +21,11 @@ type ExprLit struct {
 
 type ExprUnary struct {
 	Op scanner.TokenKind
-	X Expr
+	X  Expr
 }
 
 type ExprBinary struct {
-	X Expr
+	X  Expr
 	Op scanner.TokenKind
-	Y Expr
+	Y  Expr
 }
