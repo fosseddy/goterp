@@ -8,6 +8,10 @@ const (
 	TokenIdent
 	TokenNum
 
+	TokenPlus
+	TokenMinus
+	TokenSlash
+
 	TokenSemicolon
 
 	TokenPrint
@@ -22,6 +26,13 @@ func (kind TokenKind) String() string {
 	case TokenNum:
 		return "number"
 
+	case TokenPlus:
+		return "+"
+	case TokenMinus:
+		return "-"
+	case TokenSlash:
+		return "/"
+
 	case TokenSemicolon:
 		return ";"
 
@@ -34,7 +45,6 @@ func (kind TokenKind) String() string {
 	default:
 		return "invalid token"
 	}
-
 }
 
 type Token struct {

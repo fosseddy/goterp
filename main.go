@@ -39,6 +39,18 @@ func eval(e parser.Expr) Value {
 		default:
 			panic("unknown literal kind")
 		}
+	case parser.ExprBinary:
+		x, y := eval(e.X), eval(e.Y)
+		xf, yf := x.(float64), y.(float64)
+
+		switch e.Op {
+		case scanner.TokenPlus:
+			return xf + yf
+		case scanner.TokenMinus:
+			return xf - yf
+		default:
+			panic("unknown operation")
+		}
 	default:
 		panic("unknown expression kind")
 	}

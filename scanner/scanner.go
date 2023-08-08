@@ -48,6 +48,11 @@ func (s *Scanner) advance() {
 	s.Ch = s.Src[s.Cur]
 }
 
+func (s *Scanner) next(ch byte) bool {
+	next := s.Cur + 1
+	return next < len(s.Src) && s.Src[next] == ch
+}
+
 func (s *Scanner) makeToken(tok *Token, kind TokenKind, lit string) {
 	tok.Kind = kind
 	tok.Lit = lit
@@ -85,6 +90,21 @@ scanAgain:
 		}
 		s.advance()
 		goto scanAgain
+	case '+':
+		s.makeToken(tok, TokenPlus, "")
+		s.advance()
+	case '-':
+		s.makeToken(tok, TokenMinus, "")
+		s.advance()
+	case '/':
+		if s.next('/') {
+			for !s.isEof && s.Ch != '\n' {
+				s.advance()
+			}
+			goto scanAgain
+		}
+		s.makeToken(tok, TokenSlash, "")
+		s.advance()
 	case ';':
 		s.makeToken(tok, TokenSemicolon, "")
 		s.advance()
@@ -107,7 +127,7 @@ scanAgain:
 			}
 			s.makeIdentToken(tok)
 		default:
-			fmt.Fprint(os.Stderr, "%s:%d:unexpected character %c\n", s.Filepath, s.Line, s.Ch)
+			fmt.Fprintf(os.Stderr, "%s:%d unexpected character %c\n", s.Filepath, s.Line, s.Ch)
 			os.Exit(1)
 		}
 	}

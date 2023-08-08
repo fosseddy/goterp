@@ -1,4 +1,4 @@
+// this is comment
 
-print 3.2;
-print 5;
-
+print 5 + 3.2; // 8.2
+print 5 - 3.4; // 1.6

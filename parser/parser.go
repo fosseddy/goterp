@@ -25,11 +25,20 @@ func (p *Parser) advance() {
 
 func (p *Parser) consume(kind scanner.TokenKind) {
 	if p.Tok.Kind != kind {
-		fmt.Fprintf(os.Stderr, "%s:%d:expected %s but got %s\n", p.S.Filepath, p.Tok.Line, kind, p.Tok.Kind)
+		fmt.Fprintf(os.Stderr, "%s:%d expected %s but got %s\n", p.S.Filepath, p.Tok.Line, kind, p.Tok.Kind)
 		os.Exit(1)
 	}
 
 	p.advance()
+}
+
+func (p *Parser) next(kinds ...scanner.TokenKind) bool {
+	for _, k := range kinds {
+		if p.Tok.Kind == k {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Parser) primary() Expr {
@@ -39,11 +48,23 @@ func (p *Parser) primary() Expr {
 		return e
 	}
 
-	panic(fmt.Sprintf("%s:%d:unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
+	panic(fmt.Sprintf("%s:%d unknown primary %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
+}
+
+func (p *Parser) term() Expr {
+	e := p.primary()
+
+	if (p.next(scanner.TokenPlus, scanner.TokenMinus)) {
+		op := p.Tok.Kind
+		p.advance()
+		return ExprBinary{e, op, p.term()}
+	}
+
+	return e
 }
 
 func (p *Parser) expression() Expr {
-	return p.primary()
+	return p.term()
 }
 
 func (p *Parser) printStmt() Stmt {
@@ -59,7 +80,7 @@ func (p *Parser) statement() Stmt {
 		return p.printStmt()
 	}
 
-	panic(fmt.Sprintf("%s:%d:unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
+	panic(fmt.Sprintf("%s:%d unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
 }
 
 func (p *Parser) Parse() []Stmt {
