@@ -1,3 +1,4 @@
 // this is comment
 
-print "hello, world";
+print true && false; // false
+print true || false; // true

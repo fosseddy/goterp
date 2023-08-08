@@ -22,6 +22,8 @@ const (
 	TokenEqEq
 	TokenBang
 	TokenBangEq
+	TokenAnd
+	TokenOr
 
 	TokenSemicolon
 	TokenLParen
@@ -69,6 +71,10 @@ func (kind TokenKind) String() string {
 		return "!"
 	case TokenBangEq:
 		return "!="
+	case TokenAnd:
+		return "&&"
+	case TokenOr:
+		return "||"
 
 	case TokenSemicolon:
 		return ";"

@@ -116,8 +116,30 @@ func (p *Parser) equality() Expr {
 	return e
 }
 
+func (p *Parser) logicAnd() Expr {
+	e := p.equality()
+
+	if p.next(scanner.TokenAnd) {
+		p.advance()
+		return ExprBinary{e, scanner.TokenAnd, p.equality()}
+	}
+
+	return e
+}
+
+func (p *Parser) logicOr() Expr {
+	e := p.logicAnd()
+
+	if p.next(scanner.TokenOr) {
+		p.advance()
+		return ExprBinary{e, scanner.TokenOr, p.logicAnd()}
+	}
+
+	return e
+}
+
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.logicOr()
 }
 
 func (p *Parser) printStmt() Stmt {

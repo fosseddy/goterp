@@ -140,6 +140,24 @@ scanAgain:
 			s.makeToken(tok, TokenBang, "")
 		}
 		s.advance()
+	case '&':
+		if s.next('&') {
+			s.advance()
+			s.makeToken(tok, TokenAnd, "")
+			s.advance()
+		} else {
+			fmt.Fprintf(os.Stderr, "%s:%d unexpected character %c\n", s.Filepath, s.Line, s.Ch)
+			os.Exit(1)
+		}
+	case '|':
+		if s.next('|') {
+			s.advance()
+			s.makeToken(tok, TokenOr, "")
+			s.advance()
+		} else {
+			fmt.Fprintf(os.Stderr, "%s:%d unexpected character %c\n", s.Filepath, s.Line, s.Ch)
+			os.Exit(1)
+		}
 	case ';':
 		s.makeToken(tok, TokenSemicolon, "")
 		s.advance()

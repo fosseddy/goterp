@@ -49,29 +49,45 @@ func eval(e parser.Expr) Value {
 		}
 	case parser.ExprBinary:
 		x, y := eval(e.X), eval(e.Y)
-		xf, yf := x.(float64), y.(float64)
 
 		switch e.Op {
 		case scanner.TokenPlus:
+			if xs, ok := x.(string); ok {
+				return xs + checkStr(y)
+			}
+			xf, yf := checkNums(x, y)
 			return xf + yf
 		case scanner.TokenMinus:
+			xf, yf := checkNums(x, y)
 			return xf - yf
 		case scanner.TokenStar:
+			xf, yf := checkNums(x, y)
 			return xf * yf
 		case scanner.TokenSlash:
+			xf, yf := checkNums(x, y)
 			return xf / yf
 		case scanner.TokenLess:
+			xf, yf := checkNums(x, y)
 			return xf < yf
 		case scanner.TokenGreater:
+			xf, yf := checkNums(x, y)
 			return xf > yf
 		case scanner.TokenLessEq:
+			xf, yf := checkNums(x, y)
 			return xf <= yf
 		case scanner.TokenGreaterEq:
+			xf, yf := checkNums(x, y)
 			return xf >= yf
 		case scanner.TokenEqEq:
-			return xf == yf
+			return checkEquality(x, y)
 		case scanner.TokenBangEq:
-			return xf != yf
+			return !checkEquality(x, y)
+		case scanner.TokenAnd:
+			xb, yb := checkBools(x, y)
+			return xb && yb
+		case scanner.TokenOr:
+			xb, yb := checkBools(x, y)
+			return xb || yb
 		default:
 			panic("unknown binary operation")
 		}
@@ -108,4 +124,64 @@ func execute(s parser.Stmt) {
 	default:
 		panic("unknown statement kind")
 	}
+}
+
+func checkNum(x Value) float64 {
+	if xf, ok := x.(float64); ok {
+		return xf
+	}
+
+	// TODO(art): show file and line
+	panic("expected number")
+}
+
+func checkNums(x, y Value) (float64, float64) {
+	return checkNum(x), checkNum(y)
+}
+
+func checkBool(x Value) bool {
+	if xb, ok := x.(bool); ok {
+		return xb
+	}
+
+	// TODO(art): show file and line
+	panic("expected bool")
+}
+
+func checkBools(x, y Value) (bool, bool) {
+	return checkBool(x), checkBool(y)
+}
+
+func checkStr(x Value) string {
+	if xb, ok := x.(string); ok {
+		return xb
+	}
+
+	// TODO(art): show file and line
+	panic("expected string")
+}
+
+func checkStrs(x, y Value) (string, string) {
+	return checkStr(x), checkStr(y)
+}
+
+func checkEquality(x, y Value) bool {
+	if x == nil && y == nil {
+		return true
+	}
+
+	if x == nil || y == nil {
+		return false
+	}
+
+	if xs, ok := x.(string); ok {
+		return xs == checkStr(y)
+	}
+
+	if xb, ok := x.(bool); ok {
+		return xb == checkBool(y)
+	}
+
+	xf, yf := checkNums(x, y)
+	return xf == yf
 }
