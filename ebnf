@@ -1,8 +1,9 @@
 program = statement* EOF
 
-statement = print_stmt | let_stmt | block_stmt
+statement = print_stmt | let_stmt | assign_stmt | block_stmt
 print_stmt = "print" expression ";"
 let_stmt = "let" identifier "=" expression ";"
+assign_stmt = identifier "=" expression ";"
 block_stmt = "{" statement* "}"
 
 expression = logic_or

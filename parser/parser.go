@@ -178,6 +178,20 @@ func (p *Parser) blockStmt() Stmt {
 	return s
 }
 
+func (p *Parser) assignStmt() Stmt {
+	var s StmtAssign
+
+	s.Name = p.Tok.Lit
+
+	p.advance()
+	p.consume(scanner.TokenEq)
+
+	s.Value = p.expression()
+
+	p.consume(scanner.TokenSemicolon)
+	return s
+}
+
 func (p *Parser) statement() Stmt {
 	if p.next(scanner.TokenPrint) {
 		return p.printStmt()
@@ -185,6 +199,10 @@ func (p *Parser) statement() Stmt {
 
 	if p.next(scanner.TokenLet) {
 		return p.letStmt()
+	}
+
+	if p.next(scanner.TokenIdent) {
+		return p.assignStmt()
 	}
 
 	if p.next(scanner.TokenLBrace) {

@@ -30,8 +30,26 @@ type Block struct {
 	Prev   *Block
 }
 
-func (b *Block) Assign(k string, v Value) {
+// TODO(art): change error
+func (b *Block) Declare(k string, v Value) bool {
+	_, ok := b.Values[k]
+	if ok {
+		return false
+	}
+
 	b.Values[k] = v;
+	return true
+}
+
+// TODO(art): change error
+func (b *Block) Assign(k string, v Value) bool {
+	_, ok := b.Values[k]
+	if !ok {
+		return false
+	}
+
+	b.Values[k] = v;
+	return true
 }
 
 func (b *Block) Get(k string) (Value, bool) {
@@ -151,7 +169,16 @@ func execute(s parser.Stmt) {
 		}
 	case parser.StmtLet:
 		v := eval(s.Value)
-		env.Assign(s.Name, v)
+		if ok := env.Declare(s.Name, v); !ok {
+			fmt.Fprintf(os.Stderr, "%s already exist\n", s.Name)
+			os.Exit(1)
+		}
+	case parser.StmtAssign:
+		v := eval(s.Value)
+		if ok := env.Assign(s.Name, v); !ok {
+			fmt.Fprintf(os.Stderr, "%s does not exist\n", s.Name)
+			os.Exit(1)
+		}
 	case parser.StmtBlock:
 		prev := env
 		env = Block{map[string]Value{}, &env}

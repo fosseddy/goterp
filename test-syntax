@@ -1,19 +1,6 @@
 // this is comment
 
-let a = 69;
+let a = 32;
 
-{
-    let a = 420;
-    print a;
-
-    {
-        let a = 69420;
-        print a;
-    }
-}
-
-print a;
-
-// 420
-// 69420
-// 69
+a = 420;
+print a; // 420

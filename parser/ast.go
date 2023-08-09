@@ -13,6 +13,11 @@ type StmtLet struct {
 	Value Expr
 }
 
+type StmtAssign struct {
+	Name  string
+	Value Expr
+}
+
 type StmtBlock struct {
 	Stmts []Stmt
 }
