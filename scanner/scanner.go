@@ -167,6 +167,12 @@ scanAgain:
 	case ')':
 		s.makeToken(tok, TokenRParen, "")
 		s.advance()
+	case '{':
+		s.makeToken(tok, TokenLBrace, "")
+		s.advance()
+	case '}':
+		s.makeToken(tok, TokenRBrace, "")
+		s.advance()
 	case '"':
 		s.advance()
 		for !s.isEof && s.Ch != '"' {

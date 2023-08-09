@@ -13,6 +13,10 @@ type StmtLet struct {
 	Value Expr
 }
 
+type StmtBlock struct {
+	Stmts []Stmt
+}
+
 type Expr interface{}
 
 type ExprLit struct {

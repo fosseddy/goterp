@@ -2,4 +2,18 @@
 
 let a = 69;
 
+{
+    let a = 420;
+    print a;
+
+    {
+        let a = 69420;
+        print a;
+    }
+}
+
 print a;
+
+// 420
+// 69420
+// 69

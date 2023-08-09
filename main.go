@@ -25,7 +25,25 @@ func main() {
 
 type Value interface{}
 
-var env = map[string]Value{}
+type Block struct {
+	Values map[string]Value
+	Prev   *Block
+}
+
+func (b *Block) Assign(k string, v Value) {
+	b.Values[k] = v;
+}
+
+func (b *Block) Get(k string) (Value, bool) {
+	for it := b; it != nil; it = it.Prev {
+		if v, ok := it.Values[k]; ok {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
+var env = Block{map[string]Value{}, nil}
 
 func eval(e parser.Expr) Value {
 	switch e := e.(type) {
@@ -47,10 +65,9 @@ func eval(e parser.Expr) Value {
 		case scanner.TokenStr:
 			return e.Value.Lit
 		case scanner.TokenIdent:
-			v, ok := env[e.Value.Lit];
+			v, ok := env.Get(e.Value.Lit)
 			if !ok {
-				// TODO(art): file and line info
-				fmt.Fprintf(os.Stderr, "identifier %s does not exist\n", e.Value.Lit)
+				fmt.Fprintf(os.Stderr, "%s does not exist\n", e.Value.Lit)
 				os.Exit(1)
 			}
 			return v
@@ -103,6 +120,7 @@ func eval(e parser.Expr) Value {
 		}
 	case parser.ExprUnary:
 		x := eval(e.X)
+
 		switch e.Op {
 		case scanner.TokenBang:
 			xb := x.(bool)
@@ -133,7 +151,16 @@ func execute(s parser.Stmt) {
 		}
 	case parser.StmtLet:
 		v := eval(s.Value)
-		env[s.Name] = v
+		env.Assign(s.Name, v)
+	case parser.StmtBlock:
+		prev := env
+		env = Block{map[string]Value{}, &env}
+
+		for _, s := range s.Stmts {
+			execute(s)
+		}
+
+		env = prev
 	default:
 		panic("unknown statement kind")
 	}

@@ -165,6 +165,19 @@ func (p *Parser) letStmt() Stmt {
 	return StmtLet{name, e}
 }
 
+func (p *Parser) blockStmt() Stmt {
+	var s StmtBlock
+
+	p.advance()
+
+	for !p.next(scanner.TokenRBrace) {
+		s.Stmts = append(s.Stmts, p.statement())
+	}
+
+	p.consume(scanner.TokenRBrace)
+	return s
+}
+
 func (p *Parser) statement() Stmt {
 	if p.next(scanner.TokenPrint) {
 		return p.printStmt()
@@ -172,6 +185,10 @@ func (p *Parser) statement() Stmt {
 
 	if p.next(scanner.TokenLet) {
 		return p.letStmt()
+	}
+
+	if p.next(scanner.TokenLBrace) {
+		return p.blockStmt()
 	}
 
 	panic(fmt.Sprintf("%s:%d unknown statement %s", p.S.Filepath, p.Tok.Line, p.Tok.Kind))
