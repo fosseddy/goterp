@@ -43,13 +43,13 @@ func (b *Block) Declare(k string, v Value) bool {
 
 // TODO(art): change error
 func (b *Block) Assign(k string, v Value) bool {
-	_, ok := b.Values[k]
-	if !ok {
-		return false
+	for it := b; it != nil; it = it.Prev {
+		if _, ok := it.Values[k]; ok {
+			it.Values[k] = v
+			return true
+		}
 	}
-
-	b.Values[k] = v;
-	return true
+	return false
 }
 
 func (b *Block) Get(k string) (Value, bool) {
@@ -181,13 +181,20 @@ func execute(s parser.Stmt) {
 		}
 	case parser.StmtBlock:
 		prev := env
-		env = Block{map[string]Value{}, &env}
+		env = Block{map[string]Value{}, &prev}
 
-		for _, s := range s.Stmts {
-			execute(s)
+		for _, it := range s.Stmts {
+			execute(it)
 		}
 
 		env = prev
+	case parser.StmtWhile:
+		for {
+			if !checkBool(eval(s.Cond)) {
+				break
+			}
+			execute(s.Body)
+		}
 	default:
 		panic("unknown statement kind")
 	}

@@ -143,7 +143,7 @@ func (p *Parser) expression() Expr {
 }
 
 func (p *Parser) printStmt() Stmt {
-	p.advance()
+	p.consume(scanner.TokenPrint)
 	s := StmtPrint{p.expression()}
 	p.consume(scanner.TokenSemicolon)
 
@@ -151,7 +151,7 @@ func (p *Parser) printStmt() Stmt {
 }
 
 func (p *Parser) letStmt() Stmt {
-	p.advance()
+	p.consume(scanner.TokenLet)
 
 	name := p.Tok.Lit
 
@@ -168,7 +168,7 @@ func (p *Parser) letStmt() Stmt {
 func (p *Parser) blockStmt() Stmt {
 	var s StmtBlock
 
-	p.advance()
+	p.consume(scanner.TokenLBrace)
 
 	for !p.next(scanner.TokenRBrace) {
 		s.Stmts = append(s.Stmts, p.statement())
@@ -183,13 +183,18 @@ func (p *Parser) assignStmt() Stmt {
 
 	s.Name = p.Tok.Lit
 
-	p.advance()
+	p.consume(scanner.TokenIdent)
 	p.consume(scanner.TokenEq)
 
 	s.Value = p.expression()
 
 	p.consume(scanner.TokenSemicolon)
 	return s
+}
+
+func (p *Parser) whileStmt() Stmt {
+	p.consume(scanner.TokenWhile)
+	return StmtWhile{p.expression(), p.blockStmt()}
 }
 
 func (p *Parser) statement() Stmt {
@@ -199,6 +204,10 @@ func (p *Parser) statement() Stmt {
 
 	if p.next(scanner.TokenLet) {
 		return p.letStmt()
+	}
+
+	if p.next(scanner.TokenWhile) {
+		return p.whileStmt()
 	}
 
 	if p.next(scanner.TokenIdent) {

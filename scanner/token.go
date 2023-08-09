@@ -33,6 +33,7 @@ const (
 
 	TokenPrint
 	TokenLet
+	TokenWhile
 	TokenTrue
 	TokenFalse
 	TokenNil
@@ -94,6 +95,8 @@ func (kind TokenKind) String() string {
 		return "print"
 	case TokenLet:
 		return "let"
+	case TokenWhile:
+		return "while"
 	case TokenTrue:
 		return "true"
 	case TokenFalse:
@@ -118,6 +121,7 @@ type Token struct {
 var keywords = map[string]TokenKind{
 	"print": TokenPrint,
 	"let":   TokenLet,
+	"while":   TokenWhile,
 	"true":  TokenTrue,
 	"false": TokenFalse,
 	"nil":   TokenNil,

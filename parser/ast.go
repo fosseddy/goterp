@@ -22,6 +22,11 @@ type StmtBlock struct {
 	Stmts []Stmt
 }
 
+type StmtWhile struct {
+	Cond Expr
+	Body Stmt
+}
+
 type Expr interface{}
 
 type ExprLit struct {

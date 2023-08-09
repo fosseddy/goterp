@@ -1,10 +1,11 @@
 program = statement* EOF
 
-statement = print_stmt | let_stmt | assign_stmt | block_stmt
+statement = print_stmt | let_stmt | assign_stmt | block_stmt | while_stmt
 print_stmt = "print" expression ";"
 let_stmt = "let" identifier "=" expression ";"
 assign_stmt = identifier "=" expression ";"
 block_stmt = "{" statement* "}"
+while_stmt = "while" expression block_stmt
 
 expression = logic_or
 logic_or = logic_and ("||" logic_and)*
