@@ -128,6 +128,7 @@ func eval(e parser.Expr) Value {
 		case scanner.TokenBangEq:
 			return !checkEquality(x, y)
 		case scanner.TokenAnd:
+			// TODO(art): Make logical and/or a separate expression to eval only lhs and if needed rhs
 			xb, yb := checkBools(x, y)
 			return xb && yb
 		case scanner.TokenOr:
